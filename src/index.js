@@ -148,8 +148,9 @@ const replaceVar = function(input, hoist=false, allowUnresolved=false) {
 
 const lookupVar = function(label, index, hoist=false) {
 	while (index >= 0) {
-		if(globalVarsList[index]?.[label] !== undefined)
+		if(globalVarsList[index]?.[label] !== undefined){
 			return globalVarsList[index][label];
+	    }
 		index--;
 	}
 
@@ -161,7 +162,6 @@ const lookupVar = function(label, index, hoist=false) {
 			index--;
 		}
 	}
-
 	return undefined;
 };
 
@@ -225,7 +225,6 @@ const processVariableQueue = function() {
 
 export function setMarkedVariable(page, name, content) {
   if (page < 0) {
-	console.log(`Page ${page}`);
 	return;
   }
   if(!globalVarsList[ page ]) globalVarsList[ page ] = {};
@@ -235,7 +234,7 @@ export function setMarkedVariable(page, name, content) {
   };
 };
 
-export function getMarkedVariable(page, name) {
+export function getMarkedVariable(name, page) {
 	const lookup = lookupVar(page, name, true);
 	if(lookup?.resolved) {
 		return lookup.content;
@@ -245,6 +244,7 @@ export function getMarkedVariable(page, name) {
 
 export function clearMarkedVarsQueue() {
 	varsQueue = [];
+	globalVarsList[globalPageNumber] = {};
 }
 
 export function setMarkedVarPage(pageNumber) {
