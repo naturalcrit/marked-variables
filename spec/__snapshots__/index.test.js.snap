@@ -1,0 +1,113 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Block-level variables Handles complex hoisting 1`] = `"<p>Welcome, Mr. Bob Jacobson!</p>"`;
+
+exports[`Block-level variables Handles variable assignment and recall with multiline string 1`] = `"<p>string across multiple lines</p>"`;
+
+exports[`Block-level variables Handles variable assignment and recall with simple text 1`] = `"<p>string</p>"`;
+
+exports[`Block-level variables Handles variable assignment and recall with tables 1`] = `"<h5>Title</h5><table><thead><tr><th align="left">H1</th><th align="center">H2</th></tr></thead><tbody><tr><td align="left">A</td><td align="center">B</td></tr><tr><td align="left">C</td><td align="center">D</td></tr></tbody></table>"`;
+
+exports[`Block-level variables Handles variable reassignment 1`] = `"<p>one</p><p>two</p>"`;
+
+exports[`Block-level variables Handles variable reassignment with hoisting 1`] = `"<p>two</p><p>one</p><p>two</p>"`;
+
+exports[`Block-level variables Hoists last instance of variable 1`] = `"<p>new string</p>"`;
+
+exports[`Block-level variables Hoists undefined variables 1`] = `"<p>string</p>"`;
+
+exports[`Block-level variables Ignores undefined variables that can't be hoisted 1`] = `"<p>My name is $[first] Jones</p>"`;
+
+exports[`Code blocks Ignores all variables in fenced code blocks 1`] = `"<pre><code>[var]: string$[var]$[var](new string)</code></pre>"`;
+
+exports[`Code blocks Ignores all variables in indented code blocks 1`] = `"<p>test</p><pre><code>[var]: string$[var]$[var](new string)</code></pre>"`;
+
+exports[`Code blocks Ignores all variables in inline code blocks 1`] = `"<p><a href="Hello">var</a> <code>[link](url)</code>. This <code>[var] does not work</code></p>"`;
+
+exports[`Cross-page variables Handles hoisting across pages 1`] = `"<p>$[var]</p>\\page"`;
+
+exports[`Cross-page variables Handles reassignment and hoisting across pages 1`] = `"<p>one</p><p>one</p>\\page<p>two</p>"`;
+
+exports[`Cross-page variables Handles variable assignment and recall across pages 1`] = `"\\page<p>string</p>"`;
+
+exports[`Cross-page variables Page numbering across pages : custom page number (NaN) 1`] = `"<p>a</p>\\page<p>a</p>"`;
+
+exports[`Cross-page variables Page numbering across pages : custom page number (Number) 1`] = `"<p>100</p>\\page<p>100</p>"`;
+
+exports[`Cross-page variables Page numbering across pages : default 1`] = `"<p>$[HB_pageNumber]</p>\\page<p>$[HB_pageNumber]</p>"`;
+
+exports[`Custom Math Function Tests Number to Characters Test - Lowercase 1`] = `"<p>Characters: r am</p>"`;
+
+exports[`Custom Math Function Tests Number to Characters Test - Uppercase 1`] = `"<p>Characters: R AM</p>"`;
+
+exports[`Custom Math Function Tests Number to Characters Test 1`] = `"<p>Characters: R AM</p>"`;
+
+exports[`Custom Math Function Tests Number to Words Test - Capitalized 1`] = `"<p>Words: Eighty Thousand And Eighty-Five</p>"`;
+
+exports[`Custom Math Function Tests Number to Words Test - Lowercase 1`] = `"<p>Words: eighty thousand and eighty-five</p>"`;
+
+exports[`Custom Math Function Tests Number to Words Test - Uppercase 1`] = `"<p>Words: EIGHTY THOUSAND AND EIGHTY-FIVE</p>"`;
+
+exports[`Custom Math Function Tests Number to Words Test 1`] = `"<p>Words: eighty thousand and eighty-five</p>"`;
+
+exports[`Custom Math Function Tests Roman Numerals Test - Lowercase 1`] = `"<p>Roman Numeral: xviii</p>"`;
+
+exports[`Custom Math Function Tests Roman Numerals Test - Uppercase 1`] = `"<p>Roman Numeral: XVIII</p>"`;
+
+exports[`Custom Math Function Tests Roman Numerals Test 1`] = `"<p>Roman Numeral: XVIII</p>"`;
+
+exports[`Custom Math Function Tests Sign Test 1`] = `"<p>Positive: +</p><p>Negative: -</p>"`;
+
+exports[`Custom Math Function Tests Signed Test 1`] = `"<p>Positive: +13</p><p>Negative: -11</p>"`;
+
+exports[`Inline-level variables Handles variable assignment and recall with simple text 1`] = `"<p>string</p><p>string</p>"`;
+
+exports[`Inline-level variables Hoists last instance of variable 1`] = `"<p>My name is Bill Jones</p> <p>Bob</p>"`;
+
+exports[`Inline-level variables Hoists undefined variables when possible 1`] = `"<p>My name is Bob Jones</p>"`;
+
+exports[`Inline-level variables Only captures nested parens if balanced 1`] = `"<p>A variable (with nested parens) inside</p><p>A variable (with nested parens) inside</p><p>A variable with unbalanced parens)</p><p>A variable</p>"`;
+
+exports[`Math Handles ceil function 1`] = `"<p>1</p>"`;
+
+exports[`Math Handles floor function 1`] = `"<p>0</p>"`;
+
+exports[`Math Handles nested functions 1`] = `"<p>1</p>"`;
+
+exports[`Math Handles round function 1`] = `"<p>0</p>"`;
+
+exports[`Math Handles simple math using numbers only 1`] = `"<p>15.75</p>"`;
+
+exports[`Math Handles simple math with variables 1`] = `"<p>Answer is 15.75.</p>"`;
+
+exports[`Math Handles variable incrementing 1`] = `"<p>Increment num1 to get 6 and again to 7.</p>"`;
+
+exports[`Math function parameter handling allows one variable and a number in two-parameter functions 1`] = `"<p>1</p>"`;
+
+exports[`Math function parameter handling allows two variables in two-parameter functions 1`] = `"<p>4</p>"`;
+
+exports[`Math function parameter handling allows variables in single-parameter functions 1`] = `"<p>4</p>"`;
+
+exports[`Normal Links and Images Applies curly injectors to images 1`] = `"<p><img src="url" alt="alt text">{width:100px}</p>"`;
+
+exports[`Normal Links and Images Renders normal images 1`] = `"<p><img src="url" alt="alt text"></p>"`;
+
+exports[`Normal Links and Images Renders normal images with a title 1`] = `"<p>An image <img src="url" alt="alt text" title="and title">!</p>"`;
+
+exports[`Normal Links and Images Renders normal links 1`] = `"<p>A Link to my <a href="url">website</a>!</p>"`;
+
+exports[`Normal Links and Images Renders normal links with a title 1`] = `"<p>A Link to my <a href="url" title="and title">website</a>!</p>"`;
+
+exports[`Regression Tests Don't Eat all the parentheticals! 1`] = `"<table><thead><tr><th>title 1</th><th>title 2</th><th>title 3</th><th>title 4</th></tr></thead><tbody><tr><td><a href="bar">foo</a></td><td>Ipsum</td><td>)</td><td>)</td></tr></tbody></table>"`;
+
+exports[`Regression Tests Handle Extra spaces in image alt-text 1 1`] = `"<p><img src="http://i.imgur.com/hMna6G0.png" alt="where is my image??"></p>"`;
+
+exports[`Regression Tests Handle Extra spaces in image alt-text 2 1`] = `"<p><img src="http://i.imgur.com/hMna6G0.png" alt="where is my image??"></p>"`;
+
+exports[`Regression Tests Handle Extra spaces in image alt-text 3 1`] = `"<p><img src="http://i.imgur.com/hMna6G0.png" alt="where is my image??"></p>"`;
+
+exports[`Regression Tests Handle Extra spaces in image alt-text 4 1`] = `"<p><img src="http://i.imgur.com/hMna6G0.png" alt="where is my image??">{height=20%,width=20%}</p>"`;
+
+exports[`Variable names that are subsets of other names do not conflict with function names 1`] = `"<p>1</p>"`;
+
+exports[`Variable names that are subsets of other names do not conflict with other variable names 1`] = `"<p>14</p>"`;
