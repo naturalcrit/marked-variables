@@ -63,7 +63,7 @@ $[TableNum]: $[TableNum + 1] // TableNum = 2
 |sign(n) | returns the sign of n: + for positive numbers (including zero), - for negative numbers|
 |signed(n) | returns the value of n with its sign. In this function, 0 is treated as a positive number, returning +0.|
 
-#### Number conversions
+#### Number Conversions
 
 These use the number 4 as an example value.
 
