@@ -100,7 +100,6 @@ import { markedVariables,
 		setMarkedVarPage(0);
 		clearMarkedVarsQueue();
 		setMarkedVariable(0, 'pageNumber', 1);
-		);
 
 		const html = Marked.parse("[varName]:foo\n\nHello, my name is $[varName].\n\n");
 		console.log(html);
