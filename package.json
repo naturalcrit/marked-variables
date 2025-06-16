@@ -22,14 +22,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dbolack-ab/marked-varibles.git"
+    "url": "git+https://github.com/dbolack-ab/marked-variables.git"
   },
   "author": "David Bolack <abquintic@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/dbolack-ab/marked-varibles/issues"
+    "url": "https://github.com/dbolack-ab/marked-variables/issues"
   },
-  "homepage": "https://github.com/dbolack-ab/marked-varibles#readme",
+  "homepage": "https://github.com/dbolack-ab/marked-variables#readme",
   "peerDependencies": {
     "marked": ">=3 <16"
   },
