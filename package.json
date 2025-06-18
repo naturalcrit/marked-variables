@@ -1,6 +1,6 @@
 {
   "name": "marked-variables",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Variable expansion for Marked.js",
   "main": "./lib/index.cjs",
   "module": "./src/index.js",
