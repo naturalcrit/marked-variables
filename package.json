@@ -1,7 +1,7 @@
 {
   "name": "marked-variables",
   "version": "1.0.1",
-  "description": "Variable expansion for Marked.js",
+  "description": "Variable extension for Marked.js",
   "main": "./lib/index.cjs",
   "module": "./src/index.js",
   "browser": "./lib/index.umd.js",
@@ -22,16 +22,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dbolack-ab/marked-variables.git"
+    "url": "git+https://github.com/naturalcrit/marked-variables.git"
   },
-  "author": "David Bolack <abquintic@gmail.com>",
+  "author": "Trevor Buckner <calculuschild@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/dbolack-ab/marked-variables/issues"
+    "url": "https://github.com/naturalcrit/marked-variables/issues"
   },
-  "homepage": "https://github.com/dbolack-ab/marked-variables#readme",
+  "homepage": "https://github.com/naturalcrit/marked-variables#readme",
   "peerDependencies": {
-    "marked": ">=3 <16"
+    "marked": ">=3 <17"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
