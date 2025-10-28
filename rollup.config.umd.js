@@ -2,7 +2,7 @@ export default [
   {
     input: 'src/index.js',
     output: {
-      name: 'hard-breaks',
+      name: 'marked-variables',
       file: 'lib/index.umd.js',
       format: 'umd'
     }
