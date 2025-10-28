@@ -1,85 +1,109 @@
 # marked-variables
 
-This module provides the capability of embedding variable strings in markdown for use elsewhere in the document. There are additional facilities for math operations.
+Extends the standard [CommonMark Reference Links](https://spec.commonmark.org/0.31.2/#link-reference-definitions) feature which allows reusing links and images from a single definition, into a more general "variables" feature to also support:
+
+- Storing and reusing Markdown text and numbers
+- Math operations on number variables
+- Redefining variable contents
+
+### Background
+
+Standard [CommonMark Reference Links](https://spec.commonmark.org/0.31.2/#link-reference-definitions) let you write:
+
+```
+[HomePage]: https://myWebsite.com
+```
+
+and reuse it anywhere in the document like:
+
+```
+[HomePage]
+```
+
+or, if the link is a valid image:
+
+```
+[Logo]: https://myWebsite.com/logo.png
+
+![Logo]
+```
+
+**Marked-Variables** extends this idea to support plain Markdown strings:
+
+```
+[Greeting]: Hello *world*!
+
+$[Greeting]
+```
+
+## General Variable Assignment and Output Syntax
+Variable assignment and output is very similar to the existing reflink behavior. The key difference is that `[var](content)` now also assigns a variable, where in standard Markdown it only produces output.
+
+|Syntax              |Description                        | Details                                                                                     |
+|:-------------------|:----------------------------------|:--------------------------------------------------------------------------------------------|
+| `[var]: content`   | Assigns a variable                | Also supports multiline text, in which case the text is captured until the next blank line  |
+| `[var](content)`   | Assigns a variable and outputs it |                                                                                             |
+| `[var]`            | Outputs a variable                | Supports math operations on variable contents using operational symbols or function keywords |
+
+## Variable Output Format
+Prefixing the variable with a symbol affects how its contents are rendered.
+
+| Syntax     | Description                                                                     | Details                                       |
+|:-----------|:--------------------------------------------------------------------------------|:----------------------------------------------|
+| `[var]`    | Output the variable contents as a link, if the contents are a valid link        |                                               |
+| `![var]`   | Output the variable contents as an image, if the contents are a valid image URL |                                               |
+| `$[var]`   | Output the variable contents as parsed Markdown text                            | Supports math operations on variable contents |
 
 ## Notes:
-* Imperative definition works (i.e. variables can hold different values at different points in the document).
-* Double interpolation is not possible (i.e., composing variable names out of other variables).
-* Variable assignments inside of other variable assignments is not possible.
-* Variables are hoisted if not yet defined when called. Uses the latest possible contents of that variable.
-
-# Markdown Usage
-<!-- Show most examples of how to use this extension -->
-
-### Three syntaxes:
-|Syntax|Description|
-|------------------|-----------------------------------|
-|\[var\]:content   | Assigns a variable                |
-|\[var\]\(content\)| Assigns a variable and outputs it |
-|\[var\]           | Outputs a variable                |
+- Variables are hoisted if not yet defined when called. Uses the latest possible contents of that variable.
+- Imperative definition works (i.e. variables can be reassigned new values at different points in the document).
+- Composing a variable name out of another variable is not possible (e.g., `$[$[varName]]: Content` is invalid).
+- Variable assignments inside of other variable assignments is not possible (e.g., `$[var1]: $[var2] : Content`)
 
 ### Examples
-|Syntax	|Output|
-|-------|------|
-|[var]: Variable Contents|Assigns "Variable Contents" to var|
-|[var]: Variable Contents<br>on two<br>or three<br>or more lines	|Assigns "Variable Contents\non two\nor three\nor more lines" to var|
-|[var]:<br>\| h1 \| h2 \|<br>\|----\|----\|<br>\| c1 \| c2 \||	Assigns "\| h1 \| h2 \|\n\|----\|----\|\n\| c1 \| c2 \| to var (and can later be rendered as a table)|
-|$[var](Variable Contents)|	Assigns "Variable Contents" to var and outputs that value|
-|$[var](I love \$[var2] and \$[var3])|	Assigns "I love var2 contents and var3 contents" to var and outputs that value|
-|\$[var]|	Outputs var contents|
-|[var]|	outputs the variable contents as a link, if formatted as a valid link|
-|![var]|	outputs as an image, if formatted as a valid image|
-|\$[var]: Variable Contents<br>or<br>![var]: Variable Contents|	Identical to [var]: Variable Contents . Links, images, and variables all share the same global list. The ! or \$ prefix only matters when the variable is being expressed|
-|[var](Variable Contents)<br>or<br>![var](Variable Contents)	|Identical to assignment via \$[var](Variable Contents), but outputs as a link or image if contents are a valid link format|
-|\$[num1 + num2 * (num3 - round(5.5))]	|If +, -, *,/,^,(, or ) are found in the variable name, the whole variable is parsed mathematically with correct order of operations. Only parses if every variable is defined (hoisting works), and evaluate to a number, and the expression is valid. Supports round(x).|
+| Syntax                                                                              | Output                                                                                                                                                                                                                                                                          |
+| ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <pre>[var]: Variable Contents</pre>                                                 | Assigns "Variable Contents" to var                                                                                                                                                                                                                                              |
+| <pre>[var]: Variable Contents<br>on two<br>or three<br>or more lines</pre>          | Assigns "Variable Contents\non two\nor three\nor more lines" to var                                                                                                                                                                                                             |
+| <pre>[var]:<br>\| h1 \| h2 \|<br>\|----\|----\|<br>\| c1 \| c2 \|</pre>             | Assigns "\| h1 \| h2 \|\n\|----\|----\|\n\| c1 \| c2 \|" to var (and can later be rendered as a table)                                                                                                                                                                          |
+| <pre>$[var](Variable Contents)</pre>                                                | Assigns "Variable Contents" to var and outputs that value as parsed Markdown                                                                                                                                                                                                    |
+| <pre>$[var](I love \$[mom] and \$[dad])</pre>                                       | Assigns "I love (`[mom] contents`) and (`[dad]` contents)" to var and outputs that value as parsed Markdown                                                                                                                                                                     |
+| <pre>\$[var]</pre>                                                                  | Outputs var contents as parsed Markdown                                                                                                                                                                                                                                         |
+| <pre>[myLink]</pre>                                                                 | Outputs the variable contents as a link, if formatted as a valid link                                                                                                                                                                                                           |
+| <pre>![myImage]</pre>                                                               | Outputs as an image, if formatted as a valid image URL                                                                                                                                                                                                                          |
+| <pre>\$[var]: Variable Contents</pre><br>or<br><pre>![var]: Variable Contents</pre> | Assigns "Variable Contents" to var, identical to `[var]: Variable Contents`. Links, images, and variables all share the same global list. The `!` or `$` prefix only matters when the variable is being expressed                                                               |
+| <pre>\$[var](Variable Contents)</pre><br>or<br><pre>![var](Variable Contents)</pre> | Assigns "Variable Contents" to var and outputs that value. Identical to assignment via `[var](Variable Contents)`, but outputs as parsed Markdown or image depending on the `!` or `$` prefix.                                                                                  |
+| <pre>\$[num1 + 5.5 * (num2 - round(num3))]</pre>                                    | Parses and evaluates the expression using defined variables `num1`, `num1`, `num3`, and math functions. |
 
-### Math
-Math currently supports the following function names: round(), floor(), ceil().
-It also allows for () nesting operations.
+### Math Functions
+If `+`, `-`, `*`, `/`, `^`, `(`, or `)` are found in the variable name, the whole variable is parsed mathematically with correct order of operations. Only parses if every variable is defined (hoisting works), the expression is valid, and the result evaluates to a number.
 
-So yes, you can do incrementing tables like this:
+The following functions are also available:
 
-```
-There are $[TableNum] tables in this document. // Final value of $[TableNum] gets hoisted up:    //"There are 2 tables in this document."
+| Function      | Output                                                                                                   |
+| ------------- | -------------------------------------------------------------------------------------------------------- |
+| round(n)      | Returns the nearest integer to n. If n is halfway between two integers, it rounds away from zero.        |
+| floor(n)      | Returns the greatest integer less than or equal to n (rounds down).                                      |
+| ceil(n)       | Returns the smallest integer greater than or equal to n (rounds up).                                     |
+| abs(n)        | Returns the absolute value of the content of n.                                                          |
+| sign(n)       | Returns the sign of n: + for positive numbers (including zero), - for negative numbers.                  |
+| signed(n)     | Returns the value of n with its sign. In this function, 0 is treated as a positive number, returning +0. |
 
-$[TableNum]: 0 // Initialize to 0
+#### Number Formatting
+The format of the output number can also be set via these functions, if the value in the parentheses evaluates to a number. For example, `$[toRomans(myNumber)]` will output the contents of the `[myNumber]` variable in roman numerals 
 
-$[TableNum]: $[TableNum + 1] // TableNum = 1
-
-##### $[TableRefKnights](Table $[TableNum]: Horse Type and Quality)
-
-...
-
-$[TableNum]: $[TableNum + 1] // TableNum = 2
-
-##### $[TableRefDragons](Table $[TableNum]: Dragons of the Realm)
-```
-
-#### Math Functions
-
-|Function|Output|
-|--------|------|
-|abs(n) | returns the absolute value of the content of n|
-|sign(n) | returns the sign of n: + for positive numbers (including zero), - for negative numbers|
-|signed(n) | returns the value of n with its sign. In this function, 0 is treated as a positive number, returning +0.|
-
-#### Number Conversions
-
-These use the number 4 as an example value.
-
-|Function|Output|
-|--------|------|
-|toRomans(4) | display the value of 4 in Roman Numerals (IV)|
-|toRomansUpper(4) | display the value of 4 in forced uppercase Roman Numerals (IV)|
-|toRomansLower(4) | display the value of 4 in forced lowercase Roman Numerals (iv)|
-|toChar(4) | display the value of 4 as its position in the English alphabet (D)|
-|toCharUpper(4) | display the value of 4 as its forced uppercase position in the English alphabet (D)|
-|toCharLower(4) |display the value of 4 as its forced lowercase position in the English alphabet (d) |
-|toWords(4) | display the value of 4 as a word (four)|
-|toWordsUpper(4) | display the value of 4 as a word in uppercase (FOUR)|
-|toWordsLower(4) | display the value of 4 as a word in lowercase (four)|
-|toWordsCaps(4) | display the value of 4 as a word in word capitalization (Four)|
-
+| Function         | Output                                                                              |
+| ---------------- | ----------------------------------------------------------------------------------- |
+| toRomans(4)      | Displays the value of 4 in Roman Numerals (IV)                                       |
+| toRomansUpper(4) | Displays the value of 4 in forced uppercase Roman Numerals (IV)                      |
+| toRomansLower(4) | Displays the value of 4 in forced lowercase Roman Numerals (iv)                      |
+| toChar(4)        | Displays the value of 4 as its position in the English alphabet (D)                  |
+| toCharUpper(4)   | Displays the value of 4 as its forced uppercase position in the English alphabet (D) |
+| toCharLower(4)   | Displays the value of 4 as its forced lowercase position in the English alphabet (d) |
+| toWords(4)       | Displays the value of 4 as a word (four)                                             |
+| toWordsUpper(4)  | Displays the value of 4 as a word in uppercase (FOUR)                                |
+| toWordsLower(4)  | Displays the value of 4 as a word in lowercase (four)                                |
+| toWordsCaps(4)   | Displays the value of 4 as a word in word capitalization (Four)                      |
 
 # Project Usage
 
