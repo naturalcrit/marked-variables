@@ -38,8 +38,7 @@ describe('Block-level variables', ()=>{
 		const source = dedent`
 			[var]: string
 
-			$[var]
-		`;
+			$[var]`;
 		const rendered = Markdown(source).trimReturns();
 		expect(rendered).toMatchSnapshot();
 	});
@@ -103,8 +102,7 @@ describe('Block-level variables', ()=>{
 
 			[lastName]: Jacob
 
-			[lastName]: $[lastName]son
-			`;
+			[lastName]: $[lastName]son`;
 		const rendered = Markdown(source).replace(/\s/g, ' ').trimReturns();
 		expect(rendered).toMatchSnapshot();
 	});
@@ -117,8 +115,7 @@ describe('Block-level variables', ()=>{
 
 			[var]: two
 
-			$[var]
-			`;
+			$[var]`;
 		const rendered = Markdown(source).trimReturns();
 		expect(rendered).toMatchSnapshot();
 	});
@@ -133,8 +130,7 @@ describe('Block-level variables', ()=>{
 
 			[var]: two
 
-			$[var]
-			`;
+			$[var]`;
 		const rendered = Markdown(source).trimReturns();
 		expect(rendered).toMatchSnapshot();
 	});
@@ -143,8 +139,7 @@ describe('Block-level variables', ()=>{
 		const source = dedent`
 			$[var](My name is $[first] $[last])
 
-			$[last]: Jones
-			`;
+			$[last]: Jones`;
 		const rendered = Markdown(source).replace(/\s/g, ' ').trimReturns();
 		expect(rendered).toMatchSnapshot();
 	});
@@ -155,8 +150,7 @@ describe('Inline-level variables', ()=>{
 		const source = dedent`
 			$[var](string)
 
-			$[var]
-		`;
+			$[var]`;
 		const rendered = Markdown(source).trimReturns();
 		expect(rendered).toMatchSnapshot();
 	});
@@ -198,8 +192,7 @@ describe('Inline-level variables', ()=>{
 describe('Math', ()=>{
 	it('Handles simple math using numbers only', function() {
 		const source = dedent`
-			$[1 + 3 * 5 - (1 / 4)]
-		`;
+			$[1 + 3 * 5 - (1 / 4)]`;
 		const rendered = Markdown(source).trimReturns();
 		expect(rendered).toMatchSnapshot();
 	});
@@ -238,8 +231,7 @@ describe('Math', ()=>{
 
 			$[num2]: 4
 
-			Answer is $[answer]($[1 + 3 * num1 - (1 / num2)]).
-		`;
+			Answer is $[answer]($[1 + 3 * num1 - (1 / num2)]).`;
 		const rendered = Markdown(source).trimReturns();
 		expect(rendered).toMatchSnapshot();
 	});
@@ -248,8 +240,7 @@ describe('Math', ()=>{
 		const source = dedent`
 			$[num1]: 5
 
-			Increment num1 to get $[num1]($[num1 + 1]) and again to $[num1]($[num1 + 1]).
-		`;
+			Increment num1 to get $[num1]($[num1 + 1]) and again to $[num1]($[num1 + 1]).`;
 		const rendered = Markdown(source).trimReturns();
 		expect(rendered).toMatchSnapshot();
 	});
@@ -264,8 +255,7 @@ describe('Code blocks', ()=>{
 			$[var]
 
 			$[var](new string)
-			\`\`\`
-		`;
+			\`\`\``;
 		const rendered = Markdown(source).trimReturns();
 		expect(rendered).toMatchSnapshot();
 	});
@@ -278,8 +268,7 @@ describe('Code blocks', ()=>{
 
 			    $[var]
 
-			    $[var](new string)
-		`;
+			    $[var](new string)`;
 		const rendered = Markdown(source).trimReturns();
 		expect(rendered).toMatchSnapshot();
 	});
