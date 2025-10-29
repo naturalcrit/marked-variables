@@ -17,5 +17,8 @@ export default {
   testRegex: /\.test\.js$/.source,
   transform: {
     '\\.[jt]sx?$': 'babel-jest'
-  }
+  },
+  transformIgnorePatterns: [
+    '/node_modules/(?!marked)/'
+  ]
 };
