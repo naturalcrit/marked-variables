@@ -1,12 +1,9 @@
 import { marked as Markdown} from 'marked';
-import { markedVariables,
-		setMarkedVarPage,
-		setMarkedVariable,
-		getMarkedVariable,
-		clearMarkedVarsQueue }  from 'marked-variables';
+import { markedVariables, setMarkedVarPage }  from 'marked-variables';
 import dedent from 'dedent-tabs';
 
-/* eslint-disable max-lines */
+// Adding `.failing()` method to `describe` or `it` will make failing tests "pass" as long as they continue to fail.
+// Remove the `.failing()` method once you have fixed the issue.
 
 // Marked.js adds line returns after closing tags on some default tokens.
 // This removes those line returns for comparison sake.
@@ -24,9 +21,6 @@ renderAllPages = function(pages){
 
 	return outputs;
 };
-
-// Adding `.failing()` method to `describe` or `it` will make failing tests "pass" as long as they continue to fail.
-// Remove the `.failing()` method once you have fixed the issue.
 
 beforeEach(() => {
 	Markdown.setOptions(Markdown.getDefaults());
