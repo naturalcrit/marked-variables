@@ -227,6 +227,9 @@ export function markedVariables() {
 	return {
 		hooks : {
 			preprocess(src) {
+				globalVarsList[globalPageNumber] = {}; // Clear variables for current page before processing
+				varsQueue                        = []; // Start with an empty queue of variables to parse
+
 				const codeBlockSkip   = /^(?: {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+|^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})(?:[^\n]*)(?:\n|$)(?:|(?:[\s\S]*?)(?:\n|$))(?: {0,3}\2[~`]* *(?=\n|$))|`[^`]*?`/;
 				const blockDefRegex   = /^[!$]?\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]:(?!\() *((?:\n? *[^\s].*)+)(?=\n+|$)/; //Matches 3, [4]:5
 				const blockCallRegex  = /^[!$]?\[((?!\s*\])(?:\\.|[^\[\]\\])+)\](?=\n|$)/;                              //Matches 6, [7]
@@ -328,14 +331,13 @@ export function markedVariables() {
 				processVariableQueue();
 
 				const output = varsQueue.map((item)=>item.content).join('');
-				varsQueue = []; // Must clear varsQueue because custom HTML renderer uses Marked.parse which will preprocess again without clearing the array
 				return output;
 			}
 		}
 	}
 };
 
-export function setMarkedVariable(page, name, content) {
+export function setMarkedVariable(name, content, page=0) {
 	if (page < 0) return;
 	if(!globalVarsList[ page ]) globalVarsList[ page ] = {};
 	globalVarsList[ page ][ name ] = {
@@ -344,9 +346,9 @@ export function setMarkedVariable(page, name, content) {
 	};
 };
 
-export function getMarkedVariable(name, page) {
+export function getMarkedVariable(name, page=0) {
 	const lookup = lookupVar(page, name, true);
-	if(lookup?.resolved) {
+	if(lookup?.resolved) {	// Not sure if it can ever be unresolved here, something to check later
 		return lookup.content;
 	}
 	return undefined;
