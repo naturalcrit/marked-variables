@@ -1,6 +1,6 @@
 import { marked as Markdown} from 'marked';
 import { markedVariables,
-	    setMarkedVarPage,
+		setMarkedVarPage,
 		setMarkedVariable,
 		getMarkedVariable,
 		clearMarkedVarsQueue }  from 'marked-variables';
@@ -9,12 +9,13 @@ import dedent from 'dedent-tabs';
 /* eslint-disable max-lines */
 
 setupVars = function(){
-		Markdown.use(markedVariables());
+	//Markdown.use(markedVariables());
 
-		setMarkedVarPage(0);
-		clearMarkedVarsQueue();
-		setMarkedVariable(0, 'pageNumber', 1);
-
+	//setMarkedVarPage(0);
+	//clearMarkedVarsQueue();
+	//setMarkedVariable(0, 'pageNumber', 1);
+	Markdown.setOptions(Markdown.getDefaults());
+	Markdown.use(markedVariables());
 };
 
 // Marked.js adds line returns after closing tags on some default tokens.
@@ -26,7 +27,8 @@ String.prototype.trimReturns = function(){
 renderAllPages = function(pages){
 	const outputs = [];
 	pages.forEach((page, index)=>{
-		const output = Markdown(page, index);
+		setMarkedVarPage(index);
+		const output = Markdown(page);
 		outputs.push(output);
 	});
 
