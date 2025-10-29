@@ -24,9 +24,9 @@ exports[`Code blocks Ignores all variables in indented code blocks 1`] = `"<p>te
 
 exports[`Code blocks Ignores all variables in inline code blocks 1`] = `"<p><a href="Hello">var</a> <code>[link](url)</code>. This <code>[var] does not work</code></p>"`;
 
-exports[`Cross-page variables Handles hoisting across pages 1`] = `"<p>$[var]</p>\\page"`;
+exports[`Cross-page variables Handles hoisting across pages 1`] = `"<p>string</p>\\page"`;
 
-exports[`Cross-page variables Handles reassignment and hoisting across pages 1`] = `"<p>one</p><p>one</p>\\page<p>two</p>"`;
+exports[`Cross-page variables Handles reassignment and hoisting across pages 1`] = `"<p>two</p><p>one</p>\\page<p>two</p>"`;
 
 exports[`Cross-page variables Handles variable assignment and recall across pages 1`] = `"\\page<p>string</p>"`;
 
