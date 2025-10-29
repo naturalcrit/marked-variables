@@ -16,6 +16,7 @@
     "test": "jest --verbose",
     "test:cover": "jest --coverage",
     "test:marked": "node --test --test-reporter=dot spec/marked.spec.js",
+    "test:variables": "node --test spec/.spec.js",
     "lint": "eslint --fix .",
     "lint:dry": "eslint .",
     "build": "rollup -c rollup.config.umd.js"
@@ -52,8 +53,6 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.6.0",
     "jest-cli": "^29.7.0",
-    "lodash": "^4.17.21",
-    "marked": "^16.3.0",
     "rollup": "^4.29.2",
     "semantic-release": "^24.2.0"
   },
