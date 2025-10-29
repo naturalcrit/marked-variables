@@ -9,8 +9,8 @@
   "keywords": [
     "marked",
     "extension",
-    "mustaches",
-    "styles"
+    "variables",
+    "reflinks"
   ],
   "scripts": {
     "test": "jest --verbose",
