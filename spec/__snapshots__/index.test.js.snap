@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`Block-level variables Handles complex hoisting 1`] = `"<p>Welcome, Mr. Bob Jacobson!</p>"`;
 
