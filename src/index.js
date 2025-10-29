@@ -2,8 +2,8 @@ import { Parser as MathParser } from 'expr-eval';
 import { romanize } from 'romans';
 import writtenNumber from 'written-number';
 
-let varsQueue       = [];
-const globalVarsList    = {};
+let varsQueue        = [];
+const globalVarsList = {};
 let globalPageNumber = 0;
 
 //Limit math features to simple items
@@ -223,34 +223,6 @@ const processVariableQueue = function() {
 	varsQueue = varsQueue.filter((item)=>item.type !== 'varDefBlock');
 };
 
-export function setMarkedVariable(page, name, content) {
-  if (page < 0) {
-	return;
-  }
-  if(!globalVarsList[ page ]) globalVarsList[ page ] = {};
-  globalVarsList[ page ][ name ] = {
-		content   : content,
-		resolved  : true
-  };
-};
-
-export function getMarkedVariable(name, page) {
-	const lookup = lookupVar(page, name, true);
-	if(lookup?.resolved) {
-		return lookup.content;
-	}
-	return undefined;
-}
-
-export function clearMarkedVarsQueue() {
-	varsQueue = [];
-	globalVarsList[globalPageNumber] = {};
-}
-
-export function setMarkedVarPage(pageNumber) {
-	globalPageNumber = pageNumber;
-}
-
 export function markedVariables() {
 	return {
 		hooks : {
@@ -362,3 +334,24 @@ export function markedVariables() {
 		}
 	}
 };
+
+export function setMarkedVariable(page, name, content) {
+	if (page < 0) return;
+	if(!globalVarsList[ page ]) globalVarsList[ page ] = {};
+	globalVarsList[ page ][ name ] = {
+		content  : content,
+		resolved : true
+	};
+};
+
+export function getMarkedVariable(name, page) {
+	const lookup = lookupVar(page, name, true);
+	if(lookup?.resolved) {
+		return lookup.content;
+	}
+	return undefined;
+}
+
+export function setMarkedVarPage(pageNumber) {
+	globalPageNumber = pageNumber;
+}
