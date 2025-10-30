@@ -95,7 +95,7 @@ const normalizeVarNames = (label)=>{
 	return label.trim().replace(/\s+/g, ' ');
 };
 
-const replaceVar = function(input, hoist=false, allowUnresolved=false) {
+const replaceVar = function(input, allowUnresolved=false) {
 	const regex = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/g;
 	const match = regex.exec(input);
 
@@ -111,7 +111,7 @@ const replaceVar = function(input, hoist=false, allowUnresolved=false) {
 
 	if(prefix[0] == '$' && mathVars?.[0] !== label.trim())  {// If there was mathy stuff not captured, let's do math!
 		mathVars?.forEach((variable)=>{
-			const foundVar = lookupVar(variable, globalPageNumber, hoist);
+			const foundVar = lookupVar(variable, globalPageNumber);
 			if(foundVar && foundVar.resolved && foundVar.content && !isNaN(foundVar.content)) // Only subsitute math values if fully resolved, not empty strings, and numbers
 				replacedLabel = replacedLabel.replaceAll(new RegExp(`(?<!\\w)(${variable})(?!\\w)`, 'g'), foundVar.content);
 		});
@@ -124,7 +124,7 @@ const replaceVar = function(input, hoist=false, allowUnresolved=false) {
 	}
 	//^=====--------------------< HANDLE MATH >-------------------=====^//
 
-	const foundVar = lookupVar(label, globalPageNumber, hoist);
+	const foundVar = lookupVar(label, globalPageNumber);
 
 	if(!foundVar || (!foundVar.resolved && !allowUnresolved))
 		return undefined;			// Return undefined if not found, or parially-resolved vars are not allowed
@@ -146,22 +146,21 @@ const replaceVar = function(input, hoist=false, allowUnresolved=false) {
 		return foundVar.content;
 };
 
-const lookupVar = function(label, index, hoist=false) {
+const lookupVar = function(label, index) {
 	while (index >= 0) {
-		if(globalVarsList[index]?.[label] !== undefined){
+		if(globalVarsList[index]?.[label] !== undefined)
 			return globalVarsList[index][label];
-	    }
 		index--;
 	}
 
-	if(hoist) {	//If normal lookup failed, attempt hoisting
-		index = Object.keys(globalVarsList).length; // Move index to start from last page
-		while (index >= 0) {
-			if(globalVarsList[index]?.[label] !== undefined)
-				return globalVarsList[index][label];
-			index--;
-		}
+	//If normal lookup failed, attempt hoisting from later
+	index = Object.keys(globalVarsList).length; // Move index to start from last page
+	while (index >= 0) {
+		if(globalVarsList[index]?.[label] !== undefined)
+			return globalVarsList[index][label];
+		index--;
 	}
+
 	return undefined;
 };
 
@@ -180,7 +179,7 @@ const processVariableQueue = function() {
 				let resolved = true;
 				let tempContent = item.content;
 				while (match = regex.exec(item.content)) { // regex to find variable calls
-					const value = replaceVar(match[0], true);
+					const value = replaceVar(match[0]);
 
 					if(value == undefined)
 						resolved = false;
@@ -203,7 +202,7 @@ const processVariableQueue = function() {
 			}
 
 			if(item.type == 'varCallBlock' || item.type == 'varCallInline') {
-				const value = replaceVar(item.content, true, finalLoop); // final loop will just use the best value so far
+				const value = replaceVar(item.content, finalLoop); // final loop will just use the best value so far
 
 				if(value == undefined)
 					continue;
@@ -347,7 +346,7 @@ export function setMarkedVariable(name, content, page=0) {
 };
 
 export function getMarkedVariable(name, page=0) {
-	const lookup = lookupVar(page, name, true);
+	const lookup = lookupVar(page, name);
 	if(lookup?.resolved) {	// Not sure if it can ever be unresolved here, something to check later
 		return lookup.content;
 	}
