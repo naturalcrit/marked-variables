@@ -6,6 +6,9 @@ let varsQueue        = [];
 const globalVarsList = {};
 let globalPageNumber = 0;
 
+// Regex
+const varCallRegex = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/g; // Matches [var] or ![var] or $[var]
+
 //Limit math features to simple items
 const mathParser = new MathParser({
 	operators : {
@@ -95,13 +98,7 @@ const normalizeVarNames = (label)=>{
 	return label.trim().replace(/\s+/g, ' ');
 };
 
-const replaceVar = function(input, allowUnresolved=false) {
-	const regex = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/g;
-	const match = regex.exec(input);
-
-	const prefix = match[1];
-	const label  = normalizeVarNames(match[2]); // Ensure the label name is normalized as it should be in the var stack.
-
+const replaceVar = function(prefix, label, allowUnresolved=false) {
 	//v=====--------------------< HANDLE MATH >-------------------=====v//
 	const mathRegex = /[a-z]+\(|[+\-*/^(),]/g;
 	const matches = label.split(mathRegex);
@@ -164,8 +161,6 @@ const lookupVar = function(label, index) {
 	return undefined;
 };
 
-const nestedVarCallRegex = /[!$]?\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/g;
-
 const processVariableQueue = function() {
 	let resolvedOne = true;
 	let finalLoop   = false;
@@ -179,8 +174,8 @@ const processVariableQueue = function() {
 				let match;
 				let resolved = true;
 				let tempContent = item.content;
-				while (match = nestedVarCallRegex.exec(item.content)) { // regex to find variable calls
-					const value = replaceVar(match[0]);
+				while (match = varCallRegex.exec(item.content)) { // Check for any variable calls within this definition (i.e. [var]: $[nestedVar])
+					const value = replaceVar(match[1], match[2]);
 
 					if(value == undefined)
 						resolved = false;
@@ -203,7 +198,7 @@ const processVariableQueue = function() {
 			}
 
 			if(item.type == 'varCallBlock' || item.type == 'varCallInline') {
-				const value = replaceVar(item.content, finalLoop); // final loop will just use the best value so far
+				const value = replaceVar(item.prefix, item.varName, finalLoop); // final loop will just use the best value so far
 
 				if(value == undefined)
 					continue;
@@ -231,10 +226,10 @@ export function markedVariables() {
 				varsQueue                        = []; // Start with an empty queue of variables to parse
 
 				const codeBlockSkip   = /^(?: {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+|^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})(?:[^\n]*)(?:\n|$)(?:|(?:[\s\S]*?)(?:\n|$))(?: {0,3}\2[~`]* *(?=\n|$))|`[^`]*?`/;
-				const blockDefRegex   = /^[!$]?\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]:(?!\() *((?:\n? *[^\s].*)+)(?=\n+|$)/; //Matches 3, [4]:5
-				const blockCallRegex  = /^[!$]?\[((?!\s*\])(?:\\.|[^\[\]\\])+)\](?=\n|$)/;                              //Matches 6, [7]
-				const inlineDefRegex  = /([!$]?\[((?!\s*\])(?:\\.|[^\[\]\\])+)\])\(([^\n]+)\)/;                         //Matches 8, 9[10](11)
-				const inlineCallRegex =  /[!$]?\[((?!\s*\])(?:\\.|[^\[\]\\])+)\](?!\()/;                                //Matches 12, [13]
+				const blockDefRegex   = /^([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]:(?!\() *((?:\n? *[^\s].*)+)(?=\n+|$)/; //Matches 3, 4[5]:6
+				const blockCallRegex  = /^([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\](?=\n|$)/;                              //Matches 7, 8[9]
+				const inlineDefRegex  = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]\(([^\n]+)\)/;                           //Matches 10, 11[12](13)
+				const inlineCallRegex = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\](?!\()/;                                 //Matches 14, 15[16]
 
 				// Combine regexes and wrap in parens like so: (regex1)|(regex2)|(regex3)|(regex4)
 				const combinedRegex = new RegExp([codeBlockSkip, blockDefRegex, blockCallRegex, inlineDefRegex, inlineCallRegex].map((s)=>`(${s.source})`).join('|'), 'gm');
@@ -258,27 +253,29 @@ export function markedVariables() {
 							});
 					}
 					if(match[3]) { // Block Definition
-						const label   = match[4] ? normalizeVarNames(match[4]) : null;
-						const content = match[5] ? match[5].trim().replace(/[ \t]+/g, ' ') : null; // Normalize text content (except newlines for block-level content)
+						const label   = match[5] ? normalizeVarNames(match[5]) : null;
+						const content = match[6] ? match[6].trim().replace(/[ \t]+/g, ' ') : null; // Normalize text content (except newlines for block-level content)
 
 						varsQueue.push(
 							{ type    : 'varDefBlock',
+								prefix  : match[4],
 								varName : label,
 								content : content
 							});
 					}
-					if(match[6]) { // Block Call
-						const label = match[7] ? normalizeVarNames(match[7]) : null;
+					if(match[7]) { // Block Call
+						const label = match[9] ? normalizeVarNames(match[9]) : null;
 
 						varsQueue.push(
 							{ type    : 'varCallBlock',
+								prefix  : match[8],
 								varName : label,
 								content : match[0]
 							});
 					}
-					if(match[8]) { // Inline Definition
-						const label = match[10] ? normalizeVarNames(match[10]) : null;
-						let content = match[11] || null;
+					if(match[10]) { // Inline Definition
+						const label = match[12] ? normalizeVarNames(match[12]) : null;
+						let content = match[13] || null;
 
 						// In case of nested (), find the correct matching end )
 						let level = 0;
@@ -299,20 +296,23 @@ export function markedVariables() {
 
 						varsQueue.push(
 							{ type    : 'varDefBlock',
+								prefix  : match[11],
 								varName : label,
 								content : content
 							});
 						varsQueue.push(
 							{ type    : 'varCallInline',
+								prefix  : match[11],
 								varName : label,
-								content : match[9]
+								content : ""
 							});
 					}
-					if(match[12]) { // Inline Call
-						const label = match[13] ? normalizeVarNames(match[13]) : null;
+					if(match[14]) { // Inline Call
+						const label = match[16] ? normalizeVarNames(match[16]) : null;
 
 						varsQueue.push(
 							{ type    : 'varCallInline',
+								prefix  : match[15],
 								varName : label,
 								content : match[0]
 							});
