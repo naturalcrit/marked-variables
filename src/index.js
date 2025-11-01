@@ -226,16 +226,19 @@ export function markedVariables() {
 				varsQueue                        = []; // Start with an empty queue of variables to parse
 
 				const codeBlockSkip  = /^(?: {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+|^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})(?:[^\n]*)(?:\n|$)(?:|(?:[\s\S]*?)(?:\n|$))(?: {0,3}\2[~`]* *(?=\n|$))|`[^`]*?`/;
-				const blockDefRegex  = /(^)([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]:((?:\n? *[^\s].*)+)(?=\n+|$)/; //Matches 3, 4 5[6]:7
-				const inlineDefRegex = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]\(([^\n]+)\)/;                     //Matches 8, 9[10](11)
-				const callRegex      = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/;                                 //Matches 12, 13[14]
+				const varLabelRegex  = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/; // Matches [var] or ![var] or $[var], 3[4]
+				const blockDefRegex  = /:((?:\n? *[^\s].*)+)(?=\n+|$)/;            // Matches : block definitions,       3[4]: 5
+				const inlineDefRegex = /\(([^\n]+)\)/;                             // Matches (inline definitions),      3[4](6)
 
-				// Combine regexes and wrap in parens like so: (regex1)|(regex2)|(regex3)|(regex4)
-				const combinedRegex = new RegExp([codeBlockSkip, blockDefRegex, inlineDefRegex, callRegex].map((s)=>`(${s.source})`).join('|'), 'gm');
+				const combinedRegex = new RegExp(`(${codeBlockSkip.source})|${varLabelRegex.source}(?:${blockDefRegex.source}|${inlineDefRegex.source})?`, 'gm');
 
 				let lastIndex = 0;
 				let match;
 				while ((match = combinedRegex.exec(src)) !== null) {
+					const isLineStart = match.index === 0 || src[match.index - 1] === '\n';
+					const prefix = match[3];
+					const label  = match[4] ? normalizeVarNames(match[4]) : null;
+
 					// Format any matches into tokens and store
 					if(match.index > lastIndex) { // Any non-variable stuff
 						varsQueue.push(
@@ -249,20 +252,18 @@ export function markedVariables() {
 								content : match[0]
 							});
 					}
-					if(match[3]) { // Block Definition
-						const label   = match[6] ? normalizeVarNames(match[6]) : null;
-						const content = match[7] ? match[7].trim().replace(/[ \t]+/g, ' ') : null; // Normalize text content (except newlines for block-level content)
+					else if(isLineStart && match[5]) { // Block Definition
+						const content = match[5].trim().replace(/[ \t]+/g, ' '); // Normalize text content (except newlines for block-level content)
 
 						varsQueue.push(
 							{ type    : 'varDefBlock',
-								prefix  : match[5],
+								prefix  : prefix,
 								varName : label,
 								content : content
 							});
 					}
-					if(match[8]) { // Inline Definition
-						const label = match[10] ? normalizeVarNames(match[10]) : null;
-						let content = match[11] || null;
+					else if(match[6]) { // Inline Definition
+						let content = match[6] || null;
 
 						// In case of nested (), find the correct matching end )
 						let level = 0;
@@ -283,24 +284,22 @@ export function markedVariables() {
 
 						varsQueue.push(
 							{ type    : 'varDefBlock',
-								prefix  : match[9],
+								prefix  : prefix,
 								varName : label,
 								content : content
 							});
 						varsQueue.push(
 							{ type    : 'varCall',
-								prefix  : match[9],
+								prefix  : prefix,
 								varName : label
 							});
 					}
-					if(match[12]) { // Inline Call
-						const label = match[14] ? normalizeVarNames(match[14]) : null;
-
+					else if(match[4]) { // Variable Call
 						varsQueue.push(
 							{ type    : 'varCall',
-								prefix  : match[13],
+								prefix  : prefix,
 								varName : label,
-								content : `${match[13]}[${label}]`	// Keep original `$[var]` in case not defined anywhere
+								content : `${prefix}[${label}]`	// Keep original `$[var]` in case not defined anywhere
 							});
 					}
 					lastIndex = combinedRegex.lastIndex;
