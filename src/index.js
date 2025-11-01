@@ -164,6 +164,8 @@ const lookupVar = function(label, index) {
 	return undefined;
 };
 
+const nestedVarCallRegex = /[!$]?\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/g;
+
 const processVariableQueue = function() {
 	let resolvedOne = true;
 	let finalLoop   = false;
@@ -174,11 +176,10 @@ const processVariableQueue = function() {
 				continue;
 
 			if(item.type == 'varDefBlock') {
-				const regex = /[!$]?\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/g;
 				let match;
 				let resolved = true;
 				let tempContent = item.content;
-				while (match = regex.exec(item.content)) { // regex to find variable calls
+				while (match = nestedVarCallRegex.exec(item.content)) { // regex to find variable calls
 					const value = replaceVar(match[0]);
 
 					if(value == undefined)
