@@ -101,6 +101,18 @@ describe('Block-level variables', ()=>{
 		expect(rendered).toMatchSnapshot();
 	});
 
+	it('Displays unparsed variable if not defined : block', function() {
+		const source = dedent`$[var]`;
+		const rendered = Markdown(source).replace(/\s/g, ' ').trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
+	it('Displays unparsed variable if not defined : inline', function() {
+		const source = dedent`Hello $[var]`;
+		const rendered = Markdown(source).replace(/\s/g, ' ').trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
 	it('Handles variable reassignment', function() {
 		const source = dedent`
 			[var]: one

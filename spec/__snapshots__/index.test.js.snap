@@ -1,5 +1,9 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`Block-level variables Displays unparsed variable if not defined : block 1`] = `"<p>$[var]</p>"`;
+
+exports[`Block-level variables Displays unparsed variable if not defined : inline 1`] = `"<p>Hello $[var]</p>"`;
+
 exports[`Block-level variables Handles complex hoisting 1`] = `"<p>Welcome, Mr. Bob Jacobson!</p>"`;
 
 exports[`Block-level variables Handles variable assignment and recall with multiline string 1`] = `"<p>string across multiple lines</p>"`;

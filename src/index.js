@@ -241,14 +241,12 @@ export function markedVariables() {
 					if(match.index > lastIndex) { // Any non-variable stuff
 						varsQueue.push(
 							{ type    : 'text',
-								varName : null,
 								content : src.slice(lastIndex, match.index)
 							});
 					}
 					if(match[1]) {
 						varsQueue.push(
 							{ type    : 'text',
-								varName : null,
 								content : match[0]
 							});
 					}
@@ -270,7 +268,7 @@ export function markedVariables() {
 							{ type    : 'varCallBlock',
 								prefix  : match[8],
 								varName : label,
-								content : match[0]
+								content : match[0]	// Keep original `$[var]` in case not defined anywhere
 							});
 					}
 					if(match[10]) { // Inline Definition
@@ -303,8 +301,7 @@ export function markedVariables() {
 						varsQueue.push(
 							{ type    : 'varCallInline',
 								prefix  : match[11],
-								varName : label,
-								content : ""
+								varName : label
 							});
 					}
 					if(match[14]) { // Inline Call
@@ -314,7 +311,7 @@ export function markedVariables() {
 							{ type    : 'varCallInline',
 								prefix  : match[15],
 								varName : label,
-								content : match[0]
+								content : `${match[15]}[${label}]`	// Keep original `$[var]` in case not defined anywhere
 							});
 					}
 					lastIndex = combinedRegex.lastIndex;
