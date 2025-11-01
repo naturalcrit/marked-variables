@@ -197,7 +197,7 @@ const processVariableQueue = function() {
 					item.type = 'resolved';
 			}
 
-			if(item.type == 'varCallBlock' || item.type == 'varCallInline') {
+			if(item.type == 'varCall') {
 				const value = replaceVar(item.prefix, item.varName, finalLoop); // final loop will just use the best value so far
 
 				if(value == undefined)
@@ -225,14 +225,13 @@ export function markedVariables() {
 				globalVarsList[globalPageNumber] = {}; // Clear variables for current page before processing
 				varsQueue                        = []; // Start with an empty queue of variables to parse
 
-				const codeBlockSkip   = /^(?: {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+|^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})(?:[^\n]*)(?:\n|$)(?:|(?:[\s\S]*?)(?:\n|$))(?: {0,3}\2[~`]* *(?=\n|$))|`[^`]*?`/;
-				const blockDefRegex   = /^([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]:(?!\() *((?:\n? *[^\s].*)+)(?=\n+|$)/; //Matches 3, 4[5]:6
-				const blockCallRegex  = /^([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\](?=\n|$)/;                              //Matches 7, 8[9]
-				const inlineDefRegex  = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]\(([^\n]+)\)/;                           //Matches 10, 11[12](13)
-				const inlineCallRegex = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\](?!\()/;                                 //Matches 14, 15[16]
+				const codeBlockSkip  = /^(?: {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+|^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})(?:[^\n]*)(?:\n|$)(?:|(?:[\s\S]*?)(?:\n|$))(?: {0,3}\2[~`]* *(?=\n|$))|`[^`]*?`/;
+				const blockDefRegex  = /(^)([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]:(?!\() *((?:\n? *[^\s].*)+)(?=\n+|$)/; //Matches 3, 4 5[6]:7
+				const inlineDefRegex = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]\(([^\n]+)\)/;                             //Matches 8, 9[10](11)
+				const callRegex      = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/;                                         //Matches 12, 13[14]
 
 				// Combine regexes and wrap in parens like so: (regex1)|(regex2)|(regex3)|(regex4)
-				const combinedRegex = new RegExp([codeBlockSkip, blockDefRegex, blockCallRegex, inlineDefRegex, inlineCallRegex].map((s)=>`(${s.source})`).join('|'), 'gm');
+				const combinedRegex = new RegExp([codeBlockSkip, blockDefRegex, inlineDefRegex, callRegex].map((s)=>`(${s.source})`).join('|'), 'gm');
 
 				let lastIndex = 0;
 				let match;
@@ -251,29 +250,19 @@ export function markedVariables() {
 							});
 					}
 					if(match[3]) { // Block Definition
-						const label   = match[5] ? normalizeVarNames(match[5]) : null;
-						const content = match[6] ? match[6].trim().replace(/[ \t]+/g, ' ') : null; // Normalize text content (except newlines for block-level content)
+						const label   = match[6] ? normalizeVarNames(match[6]) : null;
+						const content = match[7] ? match[7].trim().replace(/[ \t]+/g, ' ') : null; // Normalize text content (except newlines for block-level content)
 
 						varsQueue.push(
 							{ type    : 'varDefBlock',
-								prefix  : match[4],
+								prefix  : match[5],
 								varName : label,
 								content : content
 							});
 					}
-					if(match[7]) { // Block Call
-						const label = match[9] ? normalizeVarNames(match[9]) : null;
-
-						varsQueue.push(
-							{ type    : 'varCallBlock',
-								prefix  : match[8],
-								varName : label,
-								content : match[0]	// Keep original `$[var]` in case not defined anywhere
-							});
-					}
-					if(match[10]) { // Inline Definition
-						const label = match[12] ? normalizeVarNames(match[12]) : null;
-						let content = match[13] || null;
+					if(match[8]) { // Inline Definition
+						const label = match[10] ? normalizeVarNames(match[10]) : null;
+						let content = match[11] || null;
 
 						// In case of nested (), find the correct matching end )
 						let level = 0;
@@ -294,24 +283,24 @@ export function markedVariables() {
 
 						varsQueue.push(
 							{ type    : 'varDefBlock',
-								prefix  : match[11],
+								prefix  : match[9],
 								varName : label,
 								content : content
 							});
 						varsQueue.push(
-							{ type    : 'varCallInline',
-								prefix  : match[11],
+							{ type    : 'varCall',
+								prefix  : match[9],
 								varName : label
 							});
 					}
-					if(match[14]) { // Inline Call
-						const label = match[16] ? normalizeVarNames(match[16]) : null;
+					if(match[12]) { // Inline Call
+						const label = match[14] ? normalizeVarNames(match[14]) : null;
 
 						varsQueue.push(
-							{ type    : 'varCallInline',
-								prefix  : match[15],
+							{ type    : 'varCall',
+								prefix  : match[13],
 								varName : label,
-								content : `${match[15]}[${label}]`	// Keep original `$[var]` in case not defined anywhere
+								content : `${match[13]}[${label}]`	// Keep original `$[var]` in case not defined anywhere
 							});
 					}
 					lastIndex = combinedRegex.lastIndex;
