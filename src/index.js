@@ -354,6 +354,6 @@ export function getMarkedVariable(name, page=0) {
 	return undefined;
 }
 
-export function setMarkedVarPage(pageNumber) {
+export function setMarkedVariablePage(pageNumber) {
 	globalPageNumber = pageNumber;
 }

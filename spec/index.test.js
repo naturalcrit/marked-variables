@@ -1,5 +1,5 @@
 import { marked as Markdown} from 'marked';
-import { markedVariables, setMarkedVarPage }  from 'marked-variables';
+import { markedVariables, setMarkedVariablePage }  from 'marked-variables';
 import dedent from 'dedent-tabs';
 
 // Adding `.failing()` method to `describe` or `it` will make failing tests "pass" as long as they continue to fail.
@@ -14,7 +14,7 @@ String.prototype.trimReturns = function(){
 renderAllPages = function(pages){
 	const outputs = [];
 	pages.forEach((page, index)=>{
-		setMarkedVarPage(index);
+		setMarkedVariablePage(index);
 		const output = Markdown(page);
 		outputs.push(output);
 	});
