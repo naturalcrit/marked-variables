@@ -123,7 +123,7 @@ setMarkedVariablePage(2);
 ```
 
 ### setMarkedVariable(name, content, page = 0)
-In some cases, it may be useful to manually inject a resolved variable into a specific page—either to preload known values, override definitions, or support external workflows. The variable will be marked as resolved and immediately available for use during parsing or lookup.
+In some cases, it may be useful to manually inject a resolved variable into a specific page—either to preload known values, or support external processes. The variable will be marked as resolved and immediately available for use during parsing or lookup, as if it had been defined at the top of the page. Note that variable contents for a given page are cleared on re-parse, so injected values persist only for a single pass and must be re-injected before the page is parsed again.
 
 `setMarkedVariable(name, content, page = 0)`
 
