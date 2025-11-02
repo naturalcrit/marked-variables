@@ -60,7 +60,7 @@ Prefixing the variable with a symbol affects how its contents are rendered.
 - Composing a variable name out of another variable is not possible (e.g., `$[$[varName]]: Content` is invalid).
 - Variable assignments inside of other variable assignments is not possible (e.g., `$[var1]: $[var2] : Content`)
 
-### Examples
+## Examples
 | Syntax                                                                              | Output                                                                                                                                                                                                                                                                          |
 | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | <pre>[var]: Variable Contents</pre>                                                 | Assigns "Variable Contents" to var                                                                                                                                                                                                                                              |
@@ -75,7 +75,7 @@ Prefixing the variable with a symbol affects how its contents are rendered.
 | <pre>\$[var](Variable Contents)</pre><br>or<br><pre>![var](Variable Contents)</pre> | Assigns "Variable Contents" to var and outputs that value. Identical to assignment via `[var](Variable Contents)`, but outputs as parsed Markdown or image depending on the `!` or `$` prefix.                                                                                  |
 | <pre>\$[num1 + 5.5 * (num2 - round(num3))]</pre>                                    | Parses and evaluates the expression using defined variables `num1`, `num1`, `num3`, and math functions. |
 
-### Math Functions
+## Math Functions
 If `+`, `-`, `*`, `/`, `^`, `(`, or `)` are found in the variable name, the whole variable is parsed mathematically with correct order of operations. Only parses if every variable is defined (hoisting works), the expression is valid, and the result evaluates to a number.
 
 The following functions are also available:
@@ -89,7 +89,7 @@ The following functions are also available:
 | sign(n)       | Returns the sign of n: + for positive numbers (including zero), - for negative numbers.                  |
 | signed(n)     | Returns the value of n with its sign. In this function, 0 is treated as a positive number, returning +0. |
 
-#### Number Formatting
+### Number Formatting
 The format of the output number can also be set via these functions, if the value in the parentheses evaluates to a number. For example, `$[toRomans(myNumber)]` will output the contents of the `[myNumber]` variable in roman numerals 
 
 | Function         | Output                                                                              |
@@ -105,27 +105,103 @@ The format of the output number can also be set via these functions, if the valu
 | toWordsLower(4)  | Displays the value of 4 as a word in lowercase (four)                                |
 | toWordsCaps(4)   | Displays the value of 4 as a word in word capitalization (Four)                      |
 
+## Helper Functions
+
+While not requried for basic use, there are also three helper functions for more advanced cases:
+
+### setMarkedVariablePage(pageNumber)
+To support multi-part documents parsed in separate chunks, this extension organizes variable definitions into logical sections called “pages.” Variables defined in one page can be accessed from another, once both have been parsed.
+
+`setMarkedVariablePage(pageNumber)`
+
+Sets the current working page index before parsing a chunk. Re-parsing a page will clear and re-calculate its variable definitions and lookups.
+
+- `pageNumber`: The page index to set as current (non-negative integer).
+
+```
+setMarkedVariablePage(2);
+```
+
+### setMarkedVariable(name, content, page = 0)
+In some cases, it may be useful to manually inject a resolved variable into a specific page—either to preload known values, override definitions, or support external workflows. The variable will be marked as resolved and immediately available for use during parsing or lookup.
+
+`setMarkedVariable(name, content, page = 0)`
+
+Defines a resolved variable for a given page. If the page does not yet exist, it will be initialized automatically.
+
+- `name`: The variable name to define (string).
+- `content`: The resolved content to associate with the variable.
+- `page`: (optional) The page index to assign the variable to. Defaults to 0 if not using page "chunks".
+
+```
+setMarkedVariable('total', '42', 1);
+```
+
+### getMarkedVariable(name, page = 0)
+To retrieve the resolved content of a variable from a specific page, use getMarkedVariable(name, page). This is useful for programmatic access to parsed values or for verifying resolution status across pages.
+
+`getMarkedVariable(name, page = 0)`
+
+Returns the resolved content of a variable from the specified page, or undefined if the variable is not found or not yet resolved.
+
+- `name`: The variable name to look up (string).
+- `page`: (optional) The page index to search. Defaults to 0 if not using page "chunks".
+
+```
+const value = getMarkedVariable('total', 1); // → '42'
+```
+
 # Project Usage
 
+### Basic usage:
 ```js
 import { marked as Marked }     from 'marked';
-import { markedVariables,
-	    setMarkedVarPage,
-		setMarkedVariable,
-		getMarkedVariable,
-		clearMarkedVarsQueue }  from 'marked-variables';
-
-		// We're only going to use one page
-		// in this example, so we'll hardcode the
-		// values.
+import { markedVariables }  from 'marked-variables';
 
 		Marked.use(markedVariables());
 
-		setMarkedVarPage(0);
-		clearMarkedVarsQueue();
-		setMarkedVariable(0, 'pageNumber', 1);
-
-		const html = Marked.parse("[varName]:foo\n\nHello, my name is $[varName].\n\n");
+		const html = Marked.parse("[varName]:foo\n\nHello, my name is $[varName].");
 		console.log(html);
-		//<p>Hello, my name is foo.</p>\n<p>&nbsp;</p>\n
+		//<p>Hello, my name is foo.</p>
+```
+
+### Multi-page usage:
+```js
+import { marked as Marked }     from 'marked';
+import { markedVariables
+				setMarkedVariablesPage }  from 'marked-variables';
+
+		Marked.use(markedVariables());
+
+		setMarkedVariablesPage(0);
+		const html0 = Marked.parse("Page 0:\n\n[varName]:foo\n\nHello, my name is $[varName].");
+
+		setMarkedVariablesPage(1);
+		const html1 = Marked.parse("Page 1:\n\nHello again. My name is still $[varName].");
+		
+		console.log(html0);
+		console.log(html1);
+
+		//<p>Page 0:</p><p>Hello, my name is foo.</p>
+		//<p>Page 1:</p><p>Hello again. My name is still foo.</p>
+```
+
+### External variable usage:
+```js
+import { marked as Marked }     from 'marked';
+import { markedVariables
+				setMarkedVariable
+				getMarkedVariable }  from 'marked-variables';
+
+		Marked.use(markedVariables());
+
+		setMarkedVariable('appName', 'Fancy App')
+		const html = Marked.parse("Welcome to $[appName]! My name is $[varName](foo).");
+		const myName = getMarkedVariable('varName');
+	
+		console.log(html);
+		console.log(myName);
+
+		//<p>Welcome to Fancy App! My name is foo.</p>
+		//foo
 ```
