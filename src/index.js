@@ -7,6 +7,8 @@ const globalVarsList = {};
 let globalPageNumber = 0;
 
 // Regex
+//                    url or <url>            "title"    or   'title'     or  (title)
+const linkRegex =  /^([^<\s][^\s]*|<.*?>)(?: ("(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\((?:\\\(|\\\)|[^()])*\)))?$/m;
 const varCallRegex = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/g; // Matches [var] or ![var] or $[var]
 
 //Limit math features to simple items
@@ -126,21 +128,18 @@ const replaceVar = function(prefix, label, allowUnresolved=false) {
 	if(!foundVar || (!foundVar.resolved && !allowUnresolved))
 		return undefined;			// Return undefined if not found, or parially-resolved vars are not allowed
 
-	//                    url or <url>            "title"    or   'title'     or  (title)
-	const linkRegex =  /^([^<\s][^\s]*|<.*?>)(?: ("(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\((?:\\\(|\\\)|[^()])*\)))?$/m;
-	const linkMatch = linkRegex.exec(foundVar.content);
+	if(prefix[0] == '$')          // Variable <================================
+		return foundVar.content;
 
-	const href  = linkMatch ? linkMatch[1]               : null; //TODO: TRIM OFF < > IF PRESENT
-	const title = linkMatch ? linkMatch[2]?.slice(1, -1) : null;
+	const linkMatch = foundVar.content.match(linkRegex);
+	const href      = linkMatch ? linkMatch[1]               : null; //TODO: TRIM OFF < > IF PRESENT
+	const title     = linkMatch ? linkMatch[2]?.slice(1, -1) : null;
 
-	if(!prefix[0] && href)        // Link
+	if(!prefix[0] && href)        // Link     <================================
 		return `[${label}](${href}${title ? ` "${title}"` : ''})`;
 
-	if(prefix[0] == '!' && href)  // Image
+	if(prefix[0] == '!' && href)  // Image    <================================
 		return `![${label}](${href} ${title ? ` "${title}"` : ''})`;
-
-	if(prefix[0] == '$')          // Variable
-		return foundVar.content;
 };
 
 const lookupVar = function(label, index) {
