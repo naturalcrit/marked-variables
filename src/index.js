@@ -100,7 +100,7 @@ const normalizeVarNames = (label)=>{
 	return label.trim().replace(/\s+/g, ' ');
 };
 
-const replaceVar = function(prefix, label, allowUnresolved = false) {
+const replaceVar = function(prefix, label, pageNumber, allowUnresolved = false) {
 	// ╔═════════════════════════< HANDLE MATH >═════════════════════════╗ //
 	const mathRegex = /[a-z]+\(|[+\-*/^(),]/g;
 	const matches = label.split(mathRegex);
@@ -110,7 +110,7 @@ const replaceVar = function(prefix, label, allowUnresolved = false) {
 
 	if(prefix[0] == '$' && mathVars?.[0] !== label.trim()) { // If there was mathy stuff not captured, let's do math!
 		mathVars?.forEach((variable)=>{
-			const foundVar = lookupVar(variable, globalPageNumber);
+			const foundVar = lookupVar(variable, pageNumber);
 			if(foundVar && foundVar.resolved && foundVar.content && !isNaN(foundVar.content)) // Only subsitute math values if fully resolved, not empty strings, and numbers
 				replacedLabel = replacedLabel.replaceAll(new RegExp(`(?<!\\w)(${variable})(?!\\w)`, 'g'), foundVar.content);
 		});
@@ -124,7 +124,7 @@ const replaceVar = function(prefix, label, allowUnresolved = false) {
 	}
 	// ╚═════════════════════════════════════════════════════════════════╝ //
 
-	const foundVar = lookupVar(label, globalPageNumber);
+	const foundVar = lookupVar(label, pageNumber);
 
 	if(!foundVar || (!foundVar.resolved && !allowUnresolved))
 		return undefined; // Return undefined if not found, or parially-resolved vars are not allowed
@@ -175,7 +175,7 @@ const processVariableQueue = function() {
 				let resolved = true;
 				let tempContent = item.content;
 				while (match = varCallRegex.exec(item.content)) { // Check for any variable calls within this definition (i.e. [var]: $[nestedVar])
-					const value = replaceVar(match[1], match[2]);
+					const value = replaceVar(match[1], match[2], item.pageNumber);
 
 					if(value == undefined)
 						resolved = false;
@@ -188,7 +188,7 @@ const processVariableQueue = function() {
 					item.content = tempContent;
 				}
 
-				globalVarsList[globalPageNumber][item.varName] = {
+				globalVarsList[item.pageNumber][item.varName] = {
 					content  : item.content,
 					resolved : resolved
 				};
@@ -198,7 +198,7 @@ const processVariableQueue = function() {
 			}
 
 			if(item.type == 'varCall') {
-				const value = replaceVar(item.prefix, item.varName, finalLoop); // final loop will just use the best value so far
+				const value = replaceVar(item.prefix, item.varName, item.pageNumber, finalLoop); // final loop will just use the best value so far
 
 				if(value == undefined)
 					continue;
@@ -322,6 +322,23 @@ export function markedVariables() {
 							content : src.slice(lastIndex)
 						});
 				}
+
+				varsQueue = varsQueue.map((item)=>({ ...item, pageNumber: globalPageNumber }));
+
+				//Collect all unresolved variables from previous pages include in the queue
+				//in case any new variables in the current page can be hoisted up
+				const unresolved = Object.entries(globalVarsList)
+				.flatMap(([pageNumber, vars])=>Object.entries(vars)
+					.filter(([_, data])=>data.resolved !== true)
+					.map(([varName, data])=>({
+						type       : 'varDefBlock',
+						varName,
+						content    : data.content,
+						pageNumber : Number(pageNumber)
+					}))
+				);
+
+				varsQueue = [...unresolved, ...varsQueue];
 
 				processVariableQueue();
 
