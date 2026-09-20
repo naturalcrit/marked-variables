@@ -32,12 +32,12 @@
   },
   "homepage": "https://github.com/naturalcrit/marked-variables#readme",
   "peerDependencies": {
-    "marked": ">=3 <18"
+    "marked": ">=3 <19"
   },
   "devDependencies": {
     "@babel/core": "^7.28.6",
     "@babel/preset-env": "^7.26.0",
-    "@markedjs/testutils": "17.0.1-2",
+    "@markedjs/testutils": "18.0.11-0",
     "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@semantic-release/changelog": "^6.0.3",
