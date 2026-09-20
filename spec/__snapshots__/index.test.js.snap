@@ -32,6 +32,8 @@ exports[`Code blocks Ignores all variables in inline code blocks 1`] = `"<p><a h
 
 exports[`Cross-page variables Handles hoisting across pages 1`] = `"<p>string</p>\\page"`;
 
+exports[`Cross-page variables Handles nested hoisting across pages 1`] = `"<p>Nissan Rogue</p>\\page\\page"`;
+
 exports[`Cross-page variables Handles reassignment and hoisting across pages 1`] = `"<p>two</p><p>one</p>\\page<p>two</p>"`;
 
 exports[`Cross-page variables Handles variable assignment and recall across pages 1`] = `"\\page<p>string</p>"`;

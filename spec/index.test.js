@@ -345,6 +345,15 @@ describe('Cross-page variables', ()=>{
 		expect(rendered).toMatchSnapshot();
 	});
 
+	it('Handles nested hoisting across pages', function() {
+		const source0 = '$[var1]';
+		const source1 = '[var1]: Nissan $[var2]'
+		const source2 = '[var2]: Rogue';
+		renderAllPages([source0, source1, source2]).join('\n\\page\n').trimReturns();	// Requires one full render of document before hoisting is picked up
+		const rendered = renderAllPages([source0, source1, source2]).join('\n\\page\n').trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
 	it('Handles reassignment and hoisting across pages', function() {
 		const source0 = '$[var]\n\n[var]: one\n\n$[var]';
 		const source1 = '[var]: two\n\n$[var]';
