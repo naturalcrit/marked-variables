@@ -347,10 +347,36 @@ describe('Cross-page variables', ()=>{
 
 	it('Handles nested hoisting across pages', function() {
 		const source0 = '$[var1]';
-		const source1 = '[var1]: Nissan $[var2]'
+		const source1 = '[var1]: Nissan $[var2]';
 		const source2 = '[var2]: Rogue';
 		renderAllPages([source0, source1, source2]).join('\n\\page\n').trimReturns();	// Requires one full render of document before hoisting is picked up
 		const rendered = renderAllPages([source0, source1, source2]).join('\n\\page\n').trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
+	it('Uses last value for nested hoisting across pages', function() {
+		debugger;
+		const source0 = '$[var1]';
+		const source1 = '[var1]: Nissan $[var2]';
+		const source2 = '[var2]: Rogue';
+		const source3 = '[var2]: Pathfinder';
+		renderAllPages([source0, source1, source2, source3]).join('\n\\page\n').trimReturns();	// Requires one full render of document before hoisting is picked up
+		const rendered = renderAllPages([source0, source1, source2, source3]).join('\n\\page\n').trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
+	it('Updates nested hoisting entries across pages', function() {
+		debugger;
+		const source0 = '$[var1]';
+		const source1 = '[var1]: Nissan $[var2]';
+		const source2 = '[var2]: Rogue';
+		const source3 = '[var2]: Pathfinder';
+		const source1b = '[var1]: This is my $[var2]';
+		renderAllPages([source0, source1, source2, source3]).join('\n\\page\n').trimReturns();	// Requires one full render of document before hoisting is picked up
+		setMarkedVariablePage(1);
+		Markdown(source1b).trimReturns();
+		setMarkedVariablePage(0);
+		const rendered = Markdown(source0).trimReturns();
 		expect(rendered).toMatchSnapshot();
 	});
 

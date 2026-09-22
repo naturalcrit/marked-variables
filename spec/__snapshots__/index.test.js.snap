@@ -44,6 +44,10 @@ exports[`Cross-page variables Page numbering across pages : custom page number (
 
 exports[`Cross-page variables Page numbering across pages : default 1`] = `"<p>$[HB_pageNumber]</p>\\page<p>$[HB_pageNumber]</p>"`;
 
+exports[`Cross-page variables Updates nested hoisting entries across pages 1`] = `"<p>This is my Pathfinder</p>"`;
+
+exports[`Cross-page variables Uses last value for nested hoisting across pages 1`] = `"<p>Nissan Pathfinder</p>\\page\\page\\page"`;
+
 exports[`Custom Math Function Tests Number to Characters Test - Lowercase 1`] = `"<p>Characters: r am</p>"`;
 
 exports[`Custom Math Function Tests Number to Characters Test - Uppercase 1`] = `"<p>Characters: R AM</p>"`;
