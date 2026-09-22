@@ -91,7 +91,7 @@ mathParser.functions.toWordsCaps = function(a) {
 	return words.map((word)=>{
 		return word.replace(/(?:^|\b|\s)(\w)/g, function(w, index) {
 			return index === 0 ? w.toLowerCase() : w.toUpperCase();
-		  });
+			});
 	}).join(' ');
 };
 
@@ -174,6 +174,7 @@ const processVariableQueue = function() {
 				let match;
 				let resolved = true;
 				let tempContent = item.content;
+				const origContent = item.content;
 				while (match = varCallRegex.exec(item.content)) { // Check for any variable calls within this definition (i.e. [var]: $[nestedVar])
 					const value = replaceVar(match[1], match[2], item.pageNumber);
 
@@ -189,8 +190,9 @@ const processVariableQueue = function() {
 				}
 
 				globalVarsList[item.pageNumber][item.varName] = {
-					content  : item.content,
-					resolved : resolved
+					content     : item.content,
+					origContent : origContent,
+					resolved    : resolved
 				};
 
 				if(resolved)
@@ -222,12 +224,23 @@ export function markedVariables() {
 	return {
 		hooks : {
 			preprocess(src) {
-				const existing = globalVarsList[globalPageNumber] || {};	// Clear variables for current page (except externally-injected) before processing
-				globalVarsList[globalPageNumber] = Object.fromEntries(
-					Object.entries(existing)
-            .filter(([_, value])=>value?.external)
-            .map(([key, value])=>[key, { ...value, external: undefined }])
-				);
+				globalVarsList[globalPageNumber] ??= {};	// Clear variables for current page (except externally-injected) before processing
+				
+				for (let p = 0; p <= globalPageNumber; p++) {
+					const vars = globalVarsList[p];
+					if (!vars) continue;
+
+					for (const [varName, data] of Object.entries(vars)) {
+						if (data.external) continue;
+
+						if (p === globalPageNumber) { // Clear variables for current page (except externally-injected) before processing
+							delete vars[varName];
+						} else {                      // Reset resolved status on previous pages so hoisting can be recalculated
+							data.content  = data.origContent;
+							data.resolved = false;
+						}
+					}
+				}
 				varsQueue = []; // Start with an empty queue of variables to parse
 
 				const codeBlockSkip  = /^(?: {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+|^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})(?:[^\n]*)(?:\n|$)(?:|(?:[\s\S]*?)(?:\n|$))(?: {0,3}\2[~`]* *(?=\n|$))|`[^`]*?`/;
@@ -324,13 +337,13 @@ export function markedVariables() {
 				}
 
 				varsQueue = varsQueue.map((item)=>({ ...item, pageNumber: globalPageNumber }));
-
-				//Collect all unresolved variables from previous pages include in the queue
+				//Collect all unresolved variables from previous pages included in the queue
 				//in case any new variables in the current page can be hoisted up
 				const unresolved = Object.entries(globalVarsList)
-				.flatMap(([pageNumber, vars])=>Object.entries(vars)
-					.filter(([_, data])=>data.resolved !== true)
-					.map(([varName, data])=>({
+				.filter(([pageNumber]) => Number(pageNumber) < globalPageNumber)
+				.flatMap(([pageNumber, vars]) =>
+					Object.entries(vars)
+					.map(([varName, data]) => ({
 						type       : 'varDefBlock',
 						varName,
 						content    : data.content,
