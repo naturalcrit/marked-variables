@@ -27,6 +27,18 @@ beforeEach(()=>{
 	Markdown.use(markedVariables());
 });
 
+describe('Snippet Variable', ()=>{
+  it('Ignore', function() {
+		const source = dedent`
+			@[var]: string
+
+			$[var]`;
+		const rendered = Markdown(source).trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
+});
+
 describe('Block-level variables', ()=>{
 	it('Handles variable assignment and recall with simple text', function() {
 		const source = dedent`

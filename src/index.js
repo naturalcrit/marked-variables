@@ -189,11 +189,11 @@ const processVariableQueue = function() {
 					item.content = tempContent;
 				}
 
-				globalVarsList[item.pageNumber][item.varName] = {
-					content     : item.content,
-					origContent : origContent,
-					resolved    : resolved
-				};
+        if(item.prefix !== '@') globalVarsList[item.pageNumber][item.varName] = {
+              content     : item.content,
+            origContent : origContent,
+            resolved    : resolved
+          };
 
 				if(resolved)
 					item.type = 'resolved';
@@ -244,7 +244,7 @@ export function markedVariables() {
 				varsQueue = []; // Start with an empty queue of variables to parse
 
 				const codeBlockSkip  = /^(?: {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+|^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})(?:[^\n]*)(?:\n|$)(?:|(?:[\s\S]*?)(?:\n|$))(?: {0,3}\2[~`]* *(?=\n|$))|`[^`]*?`/;
-				const varLabelRegex  = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/; // Matches [var] or ![var] or $[var], 3[4]
+				const varLabelRegex  = /([!$@]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/; // Matches [var] or ![var] or $[var], 3[4]
 				const blockDefRegex  = /:((?:\n? *[^\s].*)+)(?=\n+|$)/;            // Matches : block definitions,       3[4]: 5
 				const inlineDefRegex = /\(([^\n]+)\)/;                             // Matches (inline definitions),      3[4](6)
 
