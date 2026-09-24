@@ -108,6 +108,8 @@ exports[`Math function parameter handling allows two variables in two-parameter 
 
 exports[`Math function parameter handling allows variables in single-parameter functions 1`] = `"<p>4</p>"`;
 
+exports[`Multiple variable names at once output multiple variables at once 1`] = `"<p>first second ef</p>"`;
+
 exports[`Normal Links and Images Applies curly injectors to images 1`] = `"<p><img src="url" alt="alt text">{width:100px}</p>"`;
 
 exports[`Normal Links and Images Renders normal images 1`] = `"<p><img src="url" alt="alt text"></p>"`;

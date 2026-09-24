@@ -445,6 +445,14 @@ describe('Variable names that are subsets of other names', ()=>{
 	});
 });
 
+describe('Multiple variable names at once', ()=>{
+	it('output multiple variables at once', function() {
+		const source = '[ab]: first\n\n[cd]: second\n\n$[ab cd ef]';
+		const rendered = Markdown(source).trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+});
+
 describe('Regression Tests', ()=>{
 	it('Don\'t Eat all the parentheticals!', function() {
 		const source = '\n|  title 1  | title 2 | title 3 | title 4|\n|-----------|---------|---------|--------|\n|[foo](bar) |  Ipsum  |    )    |   )    |\n';
