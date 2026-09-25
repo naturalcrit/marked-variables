@@ -30,7 +30,25 @@ beforeEach(()=>{
 describe('Snippet Variable', ()=>{
   it('Ignore', function() {
 		const source = dedent`
-			@[var]: string
+			@[var]: A Value
+
+			$[var]`;
+		const rendered = Markdown(source).trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
+  it('Drop Anchor', function() {
+		const source = dedent`
+			@[#var]: A Value
+
+			$[var]`;
+		const rendered = Markdown(source).trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
+  it('Drop Extended Anchor', function() {
+		const source = dedent`
+			@[#var]: A Value/A Subvalue
 
 			$[var]`;
 		const rendered = Markdown(source).trimReturns();

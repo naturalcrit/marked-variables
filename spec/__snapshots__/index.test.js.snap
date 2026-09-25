@@ -128,6 +128,10 @@ exports[`Regression Tests Handle Extra spaces in image alt-text 3 1`] = `"<p><im
 
 exports[`Regression Tests Handle Extra spaces in image alt-text 4 1`] = `"<p><img src="http://i.imgur.com/hMna6G0.png" alt="where is my image??">{height=20%,width=20%}</p>"`;
 
+exports[`Snippet Variable Drop Anchor 1`] = `"<p><a href="#p0_avalue"></a></p><p>$[var]</p>"`;
+
+exports[`Snippet Variable Drop Extended Anchor 1`] = `"<p><a href="#p0_avalue_asubvalue"></a></p><p>$[var]</p>"`;
+
 exports[`Snippet Variable Ignore 1`] = `"<p>$[var]</p>"`;
 
 exports[`Variable names that are subsets of other names do not conflict with function names 1`] = `"<p>1</p>"`;
