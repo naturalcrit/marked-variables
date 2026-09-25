@@ -189,14 +189,23 @@ const processVariableQueue = function() {
 					item.content = tempContent;
 				}
 
-				globalVarsList[item.pageNumber][item.varName] = {
-					content     : item.content,
-					origContent : origContent,
-					resolved    : resolved
-				};
+        if(item.prefix !== '@') globalVarsList[item.pageNumber][item.varName] = {
+          content     : item.content,
+          origContent : origContent,
+          resolved    : resolved
+        };
+        else if(item.varName.startsWith('#')) {
+          const entries  = item.content.split('\/');
+          const dropAnchor = `[](#p${parseInt(item.pageNumber)}_${entries[0].toLowerCase().replaceAll(' ', '')}${entries.length == 1 ? '' : `_${entries[1].toLowerCase().replaceAll(' ', '')}`})`;
 
-				if(resolved)
-					item.type = 'resolved';
+          resolvedOne = true;
+          item.content = dropAnchor;
+          item.type = 'text';
+          resolved = false;
+        }
+
+			if(resolved)
+				item.type = 'resolved';
 			}
 
 			if(item.type == 'varCall') {
@@ -244,7 +253,7 @@ export function markedVariables() {
 				varsQueue = []; // Start with an empty queue of variables to parse
 
 				const codeBlockSkip  = /^(?: {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+|^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})(?:[^\n]*)(?:\n|$)(?:|(?:[\s\S]*?)(?:\n|$))(?: {0,3}\2[~`]* *(?=\n|$))|`[^`]*?`/;
-				const varLabelRegex  = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/; // Matches [var] or ![var] or $[var], 3[4]
+				const varLabelRegex  = /([!$@]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/; // Matches [var] or ![var] or $[var], 3[4]
 				const blockDefRegex  = /:((?:\n? *[^\s].*)+)(?=\n+|$)/;            // Matches : block definitions,       3[4]: 5
 				const inlineDefRegex = /\(([^\n]+)\)/;                             // Matches (inline definitions),      3[4](6)
 

@@ -27,6 +27,36 @@ beforeEach(()=>{
 	Markdown.use(markedVariables());
 });
 
+describe('Snippet Variable', ()=>{
+  it('Ignore', function() {
+		const source = dedent`
+			@[var]: A Value
+
+			$[var]`;
+		const rendered = Markdown(source).trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
+  it('Drop Anchor', function() {
+		const source = dedent`
+			@[#var]: A Value
+
+			$[var]`;
+		const rendered = Markdown(source).trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
+  it('Drop Extended Anchor', function() {
+		const source = dedent`
+			@[#var]: A Value/A Subvalue
+
+			$[var]`;
+		const rendered = Markdown(source).trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
+});
+
 describe('Block-level variables', ()=>{
 	it('Handles variable assignment and recall with simple text', function() {
 		const source = dedent`
