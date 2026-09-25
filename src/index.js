@@ -1,6 +1,8 @@
 import { Parser as MathParser } from 'expr-eval';
 import { romanize } from 'romans';
 import writtenNumber from 'written-number';
+import { default as flattenObject } from '@stdlib/utils-flatten-object';
+
 
 let varsQueue        = [];
 const globalVarsList = {};
@@ -10,6 +12,41 @@ let globalPageNumber = 0;
 //                    url or <url>            "title"    or   'title'     or  (title)
 const linkRegex    = /^([^<\s][^\s]*|<.*?>)(?: ("(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\((?:\\\(|\\\)|[^()])*\)))?$/m;
 const varCallRegex = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/g; // Matches [var] or ![var] or $[var]
+
+// JSON Manipulation functions
+const isJSON = function(str) {
+	if(str == undefined) {
+	    return false; // Some falsey values are valid JSON but should not be used in this situation.
+	  }
+	try {
+	  const obj = JSON.parse(str);
+	  // Assumes we want an Object with at least one member.
+	  	return (obj && (typeof obj == 'object') && (obj != null) && (Object.keys(obj).length > 0));
+	}	catch (err) {
+	}
+	return false;
+};
+
+const isJSONVar = function(label, index) {
+	while (index >= 0) {
+		if(Object.keys(globalVarsList[index]).some(function(k){return k.indexOf(label) == 0}))
+			return true;
+		index--;
+	}
+	return undefined ;
+};
+
+const JSONtoGlobalVars = function(name, JSONObj) {
+	const flattened = flattenObject(JSONObj, { depth: 10, copy: true, flattenArrays: true });
+	if(Object.keys(flattened).length == 0) return false;
+	Object.keys(flattened).forEach((key)=>{
+	  globalVarsList[globalPageNumber][`${name}.${key}`] = {
+	    content  : flattened[key],
+	    resolved : true
+	  };
+	});
+	return true;
+};
 
 // Limit math features to simple items
 const mathParser = new MathParser({
@@ -175,25 +212,30 @@ const processVariableQueue = function() {
 				let resolved = true;
 				let tempContent = item.content;
 				const origContent = item.content;
-				while (match = varCallRegex.exec(item.content)) { // Check for any variable calls within this definition (i.e. [var]: $[nestedVar])
-					const value = replaceVar(match[1], match[2], item.pageNumber);
+				if(!isJSON(item.content.trim())) {
 
-					if(value == undefined)
-						resolved = false;
-					else
-						tempContent = tempContent.replaceAll(match[0], value);
+  				while (match = varCallRegex.exec(item.content)) { // Check for any variable calls within this definition (i.e. [var]: $[nestedVar])
+						const value = replaceVar(match[1], match[2], item.pageNumber);
+
+						if(value == undefined)
+							resolved = false;
+						else
+							tempContent = tempContent.replaceAll(match[0], value);
+  				}
+
+  				if(resolved == true || item.content != tempContent) {
+  					resolvedOne = true;
+  					item.content = tempContent;
+  				}
+
+					if(item.prefix !== '@') globalVarsList[item.pageNumber][item.varName] = {
+					      content     : item.content,
+					    origContent : origContent,
+					    resolved    : resolved
+					  };
+				} else if(JSONtoGlobalVars(item.varName, JSON.parse(item.content))) {
+					  //resolvedOne = true;
 				}
-
-				if(resolved == true || item.content != tempContent) {
-					resolvedOne = true;
-					item.content = tempContent;
-				}
-
-        if(item.prefix !== '@') globalVarsList[item.pageNumber][item.varName] = {
-              content     : item.content,
-            origContent : origContent,
-            resolved    : resolved
-          };
 
 				if(resolved)
 					item.type = 'resolved';
@@ -219,6 +261,12 @@ const processVariableQueue = function() {
 	}
 	varsQueue = varsQueue.filter((item)=>item.type !== 'varDefBlock');
 };
+
+export function clearMarkedVariablesQueue() {
+	varsQueue = [];
+	globalVarsList[globalPageNumber] = {};
+}
+
 
 export function markedVariables() {
 	return {

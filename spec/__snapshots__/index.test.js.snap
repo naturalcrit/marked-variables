@@ -88,6 +88,12 @@ exports[`Inline-level variables Hoists undefined variables when possible 1`] = `
 
 exports[`Inline-level variables Only captures nested parens if balanced 1`] = `"<p>A variable (with nested parens) inside</p><p>A variable (with nested parens) inside</p><p>A variable with unbalanced parens)</p><p>A variable</p>"`;
 
+exports[`JSON Function Tests Access a single leaf 1`] = `"<p>hi!</p>"`;
+
+exports[`JSON Function Tests Perform a math function on a single leaf 1`] = `"<p>+1</p>"`;
+
+exports[`JSON Function Tests Perform math on a single leaf 1`] = `"<p>3</p>"`;
+
 exports[`Math Handles ceil function 1`] = `"<p>1</p>"`;
 
 exports[`Math Handles floor function 1`] = `"<p>0</p>"`;
@@ -127,8 +133,6 @@ exports[`Regression Tests Handle Extra spaces in image alt-text 2 1`] = `"<p><im
 exports[`Regression Tests Handle Extra spaces in image alt-text 3 1`] = `"<p><img src="http://i.imgur.com/hMna6G0.png" alt="where is my image??"></p>"`;
 
 exports[`Regression Tests Handle Extra spaces in image alt-text 4 1`] = `"<p><img src="http://i.imgur.com/hMna6G0.png" alt="where is my image??">{height=20%,width=20%}</p>"`;
-
-exports[`Snippet Variable Ignore 1`] = `"<p>$[var]</p>"`;
 
 exports[`Variable names that are subsets of other names do not conflict with function names 1`] = `"<p>1</p>"`;
 
