@@ -27,15 +27,6 @@ const isJSON = function(str) {
 	return false;
 };
 
-const isJSONVar = function(label, index) {
-	while (index >= 0) {
-		if(Object.keys(globalVarsList[index]).some(function(k){return k.indexOf(label) == 0}))
-			return true;
-		index--;
-	}
-	return undefined ;
-};
-
 const JSONtoGlobalVars = function(name, JSONObj) {
 	const flattened = flattenObject(JSONObj, { depth: 10, copy: true, flattenArrays: true });
 	if(Object.keys(flattened).length == 0) return false;
