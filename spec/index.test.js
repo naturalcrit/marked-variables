@@ -590,14 +590,24 @@ describe('JSON Function Tests', ()=>{
 	  const rendered = Markdown(source).trimReturns();
 	  expect(rendered).toMatchSnapshot();
 	});
-	it('Perform math on a single leaf', function() {
+
+  it('Perform math on a single leaf', function() {
 		const source = `[TestJson]: {"a": [{"a":"1","b":"B"},{"a":"2","b":"D"}],"b":"hi!"}\n\n$[TestJson.a.0.a*3]`;
 	      const rendered = Markdown(source).trimReturns();
 	      expect(rendered).toMatchSnapshot();
 	});
+
 	it('Perform a math function on a single leaf', function() {
-		const source = `[TestJson]: {"a": [{"a":"1","b":"B"},{"a":"2","b":"D"}],"b":"hi!"}\n\n$[signed(TestJson.a.0.a)]`;
+		    const source = `[TestJson]: {"a": [{"a":"1","b":"B"},{"a":"2","b":"D"}],"b":"hi!"}\n\n$[signed(TestJson.a.0.a)]`;
 	      const rendered = Markdown(source).trimReturns();
 	      expect(rendered).toMatchSnapshot();
-});
+	});
+
+	it('Access a single leaf assigned by setMarkedVariable', async function() {
+		await setMarkedVariable('TestJson', {"a": [{"a":"1","b":"B"},{"a":"2","b":"D"}],"b":"hi!"});
+		const source = `$[TestJson.a.0.a]`;
+		const rendered = Markdown(source).trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
 });

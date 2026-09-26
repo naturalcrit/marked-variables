@@ -27,13 +27,14 @@ const isJSON = function(str) {
 	return false;
 };
 
-const JSONtoGlobalVars = function(name, JSONObj) {
+const JSONtoGlobalVars = function(name, JSONObj, external) {
 	const flattened = flattenObject(JSONObj, { depth: 10, copy: true, flattenArrays: true });
 	if(Object.keys(flattened).length == 0) return false;
 	Object.keys(flattened).forEach((key)=>{
 	  globalVarsList[globalPageNumber][`${name}.${key}`] = {
 	    content  : flattened[key],
-	    resolved : true
+	    resolved : true,
+      external : external
 	  };
 	});
 	return true;
@@ -401,14 +402,20 @@ export function markedVariables() {
 	};
 };
 
-export function setMarkedVariable(name, content, page=0) {
+export async function setMarkedVariable(name, content, page=0) {
 	if(page < 0) return;
 	if(!globalVarsList[ page ]) globalVarsList[ page ] = {};
-	globalVarsList[ page ][ name ] = {
-		content  : content.toString(),
-		resolved : true,
-		external : true
-	};
+	const testContent = typeof content === 'string' ? content.trim() : JSON.stringify(content);
+	if(isJSON(testContent)) {
+		JSONtoGlobalVars(name, content, true);
+	}
+	else {
+		globalVarsList[ page ][ name ] = {
+  		content  : content.toString(),
+  		resolved : true,
+  		external : true
+  	};
+  }
 };
 
 export function getMarkedVariable(name, page = 0) {
