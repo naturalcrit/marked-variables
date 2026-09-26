@@ -1,5 +1,5 @@
 import { marked as Markdown } from 'marked';
-import { markedVariables, setMarkedVariable, setMarkedVariablePage }  from 'marked-variables';
+import { markedVariables, setMarkedVariable, setMarkedVariablePage, 	clearMarkedVariablesQueue }  from 'marked-variables';
 import dedent from 'dedent-tabs';
 
 // Adding `.failing()` method to `describe` or `it` will make failing tests "pass" as long as they continue to fail.
@@ -25,6 +25,9 @@ const renderAllPages = function(pages) {
 beforeEach(()=>{
 	Markdown.setOptions(Markdown.getDefaults());
 	Markdown.use(markedVariables());
+	setMarkedVariablePage(0);
+	clearMarkedVariablesQueue();
+	setMarkedVariable(0, 'pageNumber', 1);
 });
 
 describe('Block-level variables', ()=>{
@@ -579,4 +582,32 @@ describe('External Variable Injection', ()=>{
 		const rendered = Markdown(source).trimReturns();
 		expect(rendered).toMatchSnapshot();
 	});
+});
+
+describe('JSON Function Tests', ()=>{
+	it('Access a single leaf', function() {
+	  const source = `[TestJson]: {"a": [{"a":"1","b":"B"},{"a":"2","b":"D"}],"b":"hi!"}\n\n$[TestJson.b]`;
+	  const rendered = Markdown(source).trimReturns();
+	  expect(rendered).toMatchSnapshot();
+	});
+
+  it('Perform math on a single leaf', function() {
+		const source = `[TestJson]: {"a": [{"a":"1","b":"B"},{"a":"2","b":"D"}],"b":"hi!"}\n\n$[TestJson.a.0.a*3]`;
+	      const rendered = Markdown(source).trimReturns();
+	      expect(rendered).toMatchSnapshot();
+	});
+
+	it('Perform a math function on a single leaf', function() {
+		    const source = `[TestJson]: {"a": [{"a":"1","b":"B"},{"a":"2","b":"D"}],"b":"hi!"}\n\n$[signed(TestJson.a.0.a)]`;
+	      const rendered = Markdown(source).trimReturns();
+	      expect(rendered).toMatchSnapshot();
+	});
+
+	it('Access a single leaf assigned by setMarkedVariable', async function() {
+		await setMarkedVariable('TestJson', {"a": [{"a":"1","b":"B"},{"a":"2","b":"D"}],"b":"hi!"});
+		const source = `$[TestJson.a.0.a]`;
+		const rendered = Markdown(source).trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
 });
