@@ -337,6 +337,34 @@ describe('Cross-page variables', ()=>{
 		expect(rendered).toMatchSnapshot();
 	});
 
+	it('Handles variable reassignment and recall across pages', function() {
+		const source0 = '[var]: string\n\n$[var]\n\n[var]: updated string\n\n$[var]';
+		const source1 = '$[var]';
+		const rendered = renderAllPages([source0, source1]).join('\n\\page\n').trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
+	it('Handles variable composition and recall across pages', function() {
+		const source0 = '[name]: John\n\n$[name]\n\n[fullName]: $[name] Doe\n\n$[fullName]';
+		const source1 = '$[fullName]';
+		const rendered = renderAllPages([source0, source1]).join('\n\\page\n').trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
+	it('Handles variable reassignment with composition and recall across pages', function() {
+		const source0 = '[name]: John\n\n$[name]\n\n[name]: $[name] Doe\n\n$[name]';
+		const source1 = '$[name]';
+		const rendered = renderAllPages([source0, source1]).join('\n\\page\n').trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
+	it('Handles variable reassignment with self-composition and recall across pages', function() {
+		const source0 = '[var]: 5\n\n$[var]\n\n[var]: $[var + 1]\n\n$[var]';
+		const source1 = '$[var]';
+		const rendered = renderAllPages([source0, source1]).join('\n\\page\n').trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
 	it('Handles hoisting across pages', function() {
 		const source0 = '$[var]';
 		const source1 = '[var]: string';

@@ -38,6 +38,14 @@ exports[`Cross-page variables Handles reassignment and hoisting across pages 1`]
 
 exports[`Cross-page variables Handles variable assignment and recall across pages 1`] = `"\\page<p>string</p>"`;
 
+exports[`Cross-page variables Handles variable composition and recall across pages 1`] = `"<p>John</p><p>John Doe</p>\\page<p>John Doe</p>"`;
+
+exports[`Cross-page variables Handles variable reassignment and recall across pages 1`] = `"<p>string</p><p>updated string</p>\\page<p>updated string</p>"`;
+
+exports[`Cross-page variables Handles variable reassignment with composition and recall across pages 1`] = `"<p>John</p><p>John Doe</p>\\page<p>John Doe</p>"`;
+
+exports[`Cross-page variables Handles variable reassignment with self-composition and recall across pages 1`] = `"<p>5</p><p>6</p>\\page<p>6</p>"`;
+
 exports[`Cross-page variables Page numbering across pages : custom page number (NaN) 1`] = `"<p>a</p>\\page<p>a</p>"`;
 
 exports[`Cross-page variables Page numbering across pages : custom page number (Number) 1`] = `"<p>100</p>\\page<p>100</p>"`;
