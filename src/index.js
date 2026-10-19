@@ -240,9 +240,11 @@ export function markedVariables() {
 				varsQueue = []; // Start with an empty queue of variables to parse
 
 				const codeBlockSkip  = /^(?: {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+|^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})(?:[^\n]*)(?:\n|$)(?:|(?:[\s\S]*?)(?:\n|$))(?: {0,3}\2[~`]* *(?=\n|$))|`[^`]*?`/;
-				const varLabelRegex  = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/; // Matches [var] or ![var] or $[var], 3[4]
-				const blockDefRegex  = /:((?:\n? *[^\s].*)+)(?=\n+|$)/;            // Matches : block definitions,       3[4]: 5
-				const inlineDefRegex = /\(([^\n]+)\)/;                             // Matches (inline definitions),      3[4](6)
+				const varLabelRegex  = /([!$]?)\[((?!\s*\])(?:\\.|[^\[\]\\])+)\]/;                              // Matches [var] or ![var] or $[var], 3[4]
+				const blockDefRegex  = new RegExp(
+										`:((?:\\n? *[^\\s].*)+?)(?=\\n${varLabelRegex.source}:|\\n\\n|$(?!\n))` // Matches : block definitions,       3[4]: 5
+										); 
+				const inlineDefRegex = /\(([^\n]+)\)/;                                                          // Matches (inline definitions),      3[4](8)
 
 				const combinedRegex = new RegExp(`(${codeBlockSkip.source})|${varLabelRegex.source}(?:${blockDefRegex.source}|${inlineDefRegex.source})?`, 'gm');
 
@@ -279,8 +281,8 @@ export function markedVariables() {
 								content : content
 							});
 					}
-					else if(match[6]) { // Inline Definition
-						let content = match[6] || null;
+					else if(match[8]) { // Inline Definition
+						let content = match[8] || null;
 
 						// In case of nested (), find the correct matching end )
 						let level = 0;
