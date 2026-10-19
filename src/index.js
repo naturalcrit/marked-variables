@@ -4,6 +4,7 @@ import writtenNumber from 'written-number';
 
 let varsQueue        = [];
 const globalVarsList = {};
+const globalVarsListUnprocessed = {};
 let globalPageNumber = 0;
 
 // Regex
@@ -224,21 +225,16 @@ export function markedVariables() {
 	return {
 		hooks : {
 			preprocess(src) {
-				globalVarsList[globalPageNumber] ??= {};	// Clear variables for current page (except externally-injected) before processing
+				globalVarsList[globalPageNumber] ??= {}; // Initialize empty var list for first pass of current page
 				
 				for (let p = 0; p <= globalPageNumber; p++) {
 					const vars = globalVarsList[p];
 					if (!vars) continue;
 
+					// Clear variables for current page (except externally-injected) before processing
 					for (const [varName, data] of Object.entries(vars)) {
 						if (data.external) continue;
-
-						if (p === globalPageNumber) { // Clear variables for current page (except externally-injected) before processing
-							delete vars[varName];
-						} else {                      // Reset resolved status on previous pages so hoisting can be recalculated
-							data.content  = data.origContent;
-							data.resolved = false;
-						}
+						delete vars[varName];
 					}
 				}
 				varsQueue = []; // Start with an empty queue of variables to parse
@@ -337,19 +333,15 @@ export function markedVariables() {
 				}
 
 				varsQueue = varsQueue.map((item)=>({ ...item, pageNumber: globalPageNumber }));
-				//Collect all unresolved variables from previous pages included in the queue
-				//in case any new variables in the current page can be hoisted up
-				const unresolved = Object.entries(globalVarsList)
-				.filter(([pageNumber]) => Number(pageNumber) < globalPageNumber)
-				.flatMap(([pageNumber, vars]) =>
-					Object.entries(vars)
-					.map(([varName, data]) => ({
-						type       : 'varDefBlock',
-						varName,
-						content    : data.content,
-						pageNumber : Number(pageNumber)
-					}))
-				);
+
+				// Record the pre-processed list of vars by page, for easy re-processing later
+				globalVarsListUnprocessed[globalPageNumber] =
+					structuredClone(varsQueue.filter(item => item.type === 'varDefBlock'));
+
+				// Get a copy of prior pages pre-processed vars to help parse current page
+				const unresolved = structuredClone(Object.keys(globalVarsListUnprocessed)
+					.filter(page => page < globalPageNumber)
+					.flatMap(page => globalVarsListUnprocessed[page]));
 
 				varsQueue = [...unresolved, ...varsQueue];
 
