@@ -62,6 +62,43 @@ describe('Block-level variables', ()=>{
 		expect(rendered).toMatchSnapshot();
 	});
 
+	it('Handles multiple adjacent one-line variable assignments and recall with simple text', function() {
+		const source = dedent`
+			[var1]: string1
+			[var2]: string2
+			![var3]: string3
+			$[var4]: string4
+
+			$[var1]
+			$[var2]
+			$[var3]
+			$[var4]`;
+		const rendered = Markdown(source).trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
+	it('Handles multiple adjacent multi-line variable assignments and recall with simple text', function() {
+		const source = dedent`
+			[var1]: string1
+			continue
+			[var2]: string2 continue
+			![var3]:
+			string3
+			continue
+			$[var4]: string4
+			continue
+			and continue
+
+			Normal text
+
+			$[var1]
+			$[var2]
+			$[var3]
+			$[var4]`;
+		const rendered = Markdown(source).trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
 	it('Hoists undefined variables', function() {
 		const source = dedent`
 			$[var]
@@ -158,6 +195,47 @@ describe('Block-level variables', ()=>{
 
 			$[Hello]`;
 		const rendered = Markdown(source).replace(/\s/g, ' ').trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
+	it('Ignores variable names with square brackets', function() {
+		const source = dedent`
+			[var1]]: string
+
+			[var2[]: string
+
+			$[var1]]
+			$[var2[]`;
+		const rendered = Markdown(source).trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
+	it('Allows variable names with escaped square brackets', function() {
+		const source = dedent`
+			[var1\]]: string
+
+			[var2\[]: string
+
+			$[var1\]]
+			$[var2\[]`;
+		const rendered = Markdown(source).trimReturns();
+		expect(rendered).toMatchSnapshot();
+	});
+
+	it('Ignores all-whitespace variable names', function() {
+		const source = dedent`
+			[]: empty
+			[ ]: space
+			[	]: tab
+			[ 	 ]: space tab space
+			[    ]: 4 spaces
+
+			[]
+			[ ]
+			[	]
+			[ 	 ]
+			[    ]`;
+		const rendered = Markdown(source).trimReturns();
 		expect(rendered).toMatchSnapshot();
 	});
 });
