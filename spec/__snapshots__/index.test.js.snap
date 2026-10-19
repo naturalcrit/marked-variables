@@ -1,10 +1,16 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`Block-level variables Allows variable names with escaped square brackets 1`] = `"<p>stringstring</p>"`;
+
 exports[`Block-level variables Displays unparsed variable if not defined : block 1`] = `"<p>$[var]</p>"`;
 
 exports[`Block-level variables Displays unparsed variable if not defined : inline 1`] = `"<p>Hello $[var]</p>"`;
 
 exports[`Block-level variables Handles complex hoisting 1`] = `"<p>Welcome, Mr. Bob Jacobson!</p>"`;
+
+exports[`Block-level variables Handles multiple adjacent multi-line variable assignments and recall with simple text 1`] = `"<p>Normal text</p><p>string1continuestring2 continuestring3continuestring4continueand continue</p>"`;
+
+exports[`Block-level variables Handles multiple adjacent one-line variable assignments and recall with simple text 1`] = `"<p>string1string2string3string4</p>"`;
 
 exports[`Block-level variables Handles variable assignment and recall with multiline string 1`] = `"<p>string across multiple lines</p>"`;
 
@@ -20,9 +26,13 @@ exports[`Block-level variables Hoists last instance of variable 1`] = `"<p>new s
 
 exports[`Block-level variables Hoists undefined variables 1`] = `"<p>string</p>"`;
 
+exports[`Block-level variables Ignores all-whitespace variable names 1`] = `"<p>[]: empty[ ]: space[	]: tab[ 	 ]: space tab space[    ]: 4 spaces</p><p>[][ ][	][ 	 ][    ]</p>"`;
+
 exports[`Block-level variables Ignores assignment syntax ([var] + colon) that is not at the line start 1`] = `"<h3>Original value:This is not a valid assignment</h3> <p>Original value</p>"`;
 
 exports[`Block-level variables Ignores undefined variables that can't be hoisted 1`] = `"<p>My name is $[first] Jones</p>"`;
+
+exports[`Block-level variables Ignores variable names with square brackets 1`] = `"<p>[var1]]: string</p><p>[var2[]: string</p><p>$[var1]]$[var2[]</p>"`;
 
 exports[`Code blocks Ignores all variables in fenced code blocks 1`] = `"<pre><code>[var]: string$[var]$[var](new string)</code></pre>"`;
 
