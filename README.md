@@ -41,7 +41,7 @@ Variable assignment and output is very similar to the existing reflink behavior.
 
 |Syntax              |Description                        | Details                                                                                     |
 |:-------------------|:----------------------------------|:--------------------------------------------------------------------------------------------|
-| `[var]: content`   | Assigns a variable                | Also supports multiline text, in which case the text is captured until the next blank line  |
+| `[var]: content`   | Assigns a variable                | Also supports multiline text, in which case the text is captured until the next blank line or the start of the next variable assignment |
 | `[var](content)`   | Assigns a variable and outputs it |                                                                                             |
 | `[var]`            | Outputs a variable                | Supports math operations on variable contents using operational symbols or function keywords |
 
